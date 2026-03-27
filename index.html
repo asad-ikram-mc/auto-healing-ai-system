@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ford LENS — Auto-Healer Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #05080f;
+    --bg2:       #080d18;
+    --bg3:       #0c1220;
+    --panel:     #0e1525;
+    --border:    #1a2540;
+    --border2:   #243050;
+    --ford:      #1a56db;
+    --ford-lt:   #3b82f6;
+    --ford-dim:  #1a3a70;
+    --text:      #c8d5ef;
+    --muted:     #4a5a7a;
+    --muted2:    #2a3555;
+    --green:     #22c55e;
+    --orange:    #f97316;
+    --red:       #ef4444;
+    --purple:    #a78bfa;
+    --yellow:    #fbbf24;
+    --teal:      #2dd4bf;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-ui:   'Barlow', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-ui); }
+
+  /* ─── SCANLINES OVERLAY ─────────────────────────── */
+  body::before {
+    content:''; position:fixed; inset:0; z-index:9999; pointer-events:none;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);
+  }
+
+  /* ─── TOPBAR ─────────────────────────────────────── */
+  #topbar {
+    height: 52px; display: flex; align-items: center; padding: 0 18px;
+    background: var(--bg2); border-bottom: 1px solid var(--border);
+    gap: 18px; position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  }
+  .ford-logo { display:flex; align-items:center; gap:10px; }
+  .ford-badge {
+    width:46px; height:22px; background:#1e3a8a; border:1.5px solid #3b82f6;
+    border-radius:50% / 45%; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-cond); font-weight:800; font-size:12px; color:#93c5fd;
+    letter-spacing:1px; text-shadow:0 0 8px #3b82f6;
+  }
+  .lens-label {
+    font-family:var(--font-mono); font-size:11px; font-weight:600;
+    color:var(--muted); letter-spacing:3px; text-transform:uppercase;
+  }
+  .divider-v { width:1px; height:28px; background:var(--border); }
+  .tab-bar { display:flex; gap:2px; }
+  .tab {
+    padding:5px 14px; border-radius:5px; font-size:11px; font-weight:600;
+    cursor:pointer; font-family:var(--font-cond); letter-spacing:.5px;
+    text-transform:uppercase; color:var(--muted); transition:all .2s;
+    border:1px solid transparent;
+  }
+  .tab:hover { color:var(--text); background:var(--bg3); }
+  .tab.active { color:var(--ford-lt); background:rgba(59,130,246,.12); border-color:rgba(59,130,246,.3); }
+  .topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .sys-clock {
+    font-family:var(--font-mono); font-size:10px; color:var(--muted);
+    background:var(--bg3); padding:3px 10px; border-radius:4px;
+    border:1px solid var(--border);
+  }
+  .heal-all-btn {
+    padding:5px 16px; border-radius:6px; border:none; cursor:pointer;
+    background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
+    font-family:var(--font-cond); font-weight:700; font-size:11px;
+    letter-spacing:.5px; text-transform:uppercase;
+    transition:all .2s; display:flex; align-items:center; gap:5px;
+  }
+  .heal-all-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(167,139,250,.4); }
+  .run-all-btn {
+    padding:5px 16px; border-radius:6px; border:none; cursor:pointer;
+    background:linear-gradient(135deg,#1a3a70,#1a56db); color:#fff;
+    font-family:var(--font-cond); font-weight:700; font-size:11px;
+    letter-spacing:.5px; text-transform:uppercase;
+    transition:all .2s; display:flex; align-items:center; gap:5px;
+  }
+  .run-all-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(26,86,219,.4); }
+
+  /* ─── LAYOUT ─────────────────────────────────────── */
+  #app { display:flex; height:100vh; padding-top:90px; }
+  #sidebar {
+    width:290px; flex-shrink:0; border-right:1px solid var(--border);
+    background:var(--bg2); display:flex; flex-direction:column; overflow:hidden;
+  }
+  #main { flex:1; overflow-y:auto; }
+
+  /* ─── STATS ROW ─────────────────────────────────── */
+  #stats-row {
+    display:grid; grid-template-columns:repeat(6,1fr);
+    gap:1px; border-bottom:1px solid var(--border);
+    background:var(--border);
+  }
+  .stat-card {
+    background:var(--bg2); padding:12px 16px;
+    display:flex; flex-direction:column; gap:3px;
+  }
+  .stat-val {
+    font-family:var(--font-mono); font-size:22px; font-weight:700;
+    line-height:1;
+  }
+  .stat-lbl {
+    font-size:9px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--muted); font-weight:600;
+  }
+  .stat-bar {
+    height:2px; border-radius:1px; margin-top:4px;
+    transition:width .8s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ─── SIDEBAR FILTER ─────────────────────────────── */
+  .sidebar-search {
+    padding:10px 12px; border-bottom:1px solid var(--border);
+  }
+  .sidebar-search input {
+    width:100%; background:var(--bg3); border:1px solid var(--border2);
+    border-radius:6px; padding:6px 10px; font-size:11px; color:var(--text);
+    font-family:var(--font-ui); outline:none; transition:border-color .2s;
+  }
+  .sidebar-search input:focus { border-color:var(--ford-lt); }
+  .sidebar-search input::placeholder { color:var(--muted); }
+  .filter-chips {
+    display:flex; gap:4px; padding:8px 12px;
+    border-bottom:1px solid var(--border); flex-wrap:wrap;
+  }
+  .chip {
+    padding:2px 9px; border-radius:99px; font-size:9px; font-weight:600;
+    cursor:pointer; letter-spacing:.04em; text-transform:uppercase;
+    transition:all .15s; border:1px solid transparent; font-family:var(--font-cond);
+  }
+  .chip:hover { transform:translateY(-1px); }
+  .chip.active { color:#fff; }
+
+  /* ─── CRAWLER LIST ─────────────────────────────── */
+  #crawler-list { flex:1; overflow-y:auto; padding:4px 0; }
+  #crawler-list::-webkit-scrollbar { width:4px; }
+  #crawler-list::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+  .crawler-item {
+    padding:9px 14px; cursor:pointer; border-left:3px solid transparent;
+    transition:all .15s; display:flex; align-items:center; gap:8px;
+    position:relative;
+  }
+  .crawler-item:hover { background:var(--bg3); }
+  .crawler-item.selected { background:rgba(26,86,219,.1); border-left-color:var(--ford-lt); }
+  .crawler-name {
+    font-size:11px; font-weight:500; line-height:1.3; flex:1; min-width:0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .crawler-domain {
+    font-size:9px; color:var(--muted); font-family:var(--font-mono);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .status-dot {
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+    transition:all .3s;
+  }
+  .status-dot.pulse { animation:pulse-dot 2s ease infinite; }
+  @keyframes pulse-dot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:.6; transform:scale(.8); }
+  }
+  .priority-pip {
+    width:4px; height:4px; border-radius:50%; flex-shrink:0;
+  }
+
+  /* ─── MAIN CONTENT TABS ─────────────────────────── */
+  #main { background:var(--bg); }
+
+  /* fleet overview */
+  #view-fleet { padding:20px; }
+  #view-garage { display:flex; height:100%; }
+
+  /* detail panel */
+  #detail-panel {
+    flex:1; padding:20px; overflow-y:auto; border-left:1px solid var(--border);
+  }
+  #detail-panel::-webkit-scrollbar { width:4px; }
+  #detail-panel::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+
+  .panel-title {
+    font-family:var(--font-cond); font-size:20px; font-weight:700;
+    letter-spacing:.5px; margin-bottom:4px;
+  }
+  .panel-subtitle {
+    font-family:var(--font-mono); font-size:10px; color:var(--muted);
+  }
+  .section-head {
+    font-family:var(--font-cond); font-size:11px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.1em; color:var(--muted);
+    margin:18px 0 8px;
+  }
+
+  .card {
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:14px;
+  }
+  .cards-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+    gap:6px; margin-bottom:14px;
+  }
+  .mini-card {
+    background:var(--bg3); border:1px solid var(--border);
+    border-radius:6px; padding:8px 10px;
+  }
+  .mini-card-val {
+    font-family:var(--font-mono); font-size:14px; font-weight:700;
+  }
+  .mini-card-lbl {
+    font-size:8px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--muted); margin-top:2px;
+  }
+
+  /* action buttons */
+  .action-bar { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+  .btn {
+    padding:6px 16px; border-radius:6px; border:none; cursor:pointer;
+    font-family:var(--font-cond); font-weight:700; font-size:11px;
+    letter-spacing:.5px; text-transform:uppercase; transition:all .2s;
+    display:flex; align-items:center; gap:5px; white-space:nowrap;
+  }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .btn:not(:disabled):hover { transform:translateY(-1px); }
+  .btn-blue {
+    background:linear-gradient(135deg,#1a3a70,#1a56db); color:#fff;
+    box-shadow:0 2px 10px rgba(26,86,219,.3);
+  }
+  .btn-blue:not(:disabled):hover { box-shadow:0 4px 16px rgba(26,86,219,.5); }
+  .btn-purple {
+    background:linear-gradient(135deg,#5b21b6,#7c3aed); color:#fff;
+    box-shadow:0 2px 10px rgba(124,58,237,.3);
+  }
+  .btn-purple:not(:disabled):hover { box-shadow:0 4px 16px rgba(124,58,237,.5); }
+  .btn-green {
+    background:linear-gradient(135deg,#166534,#16a34a); color:#fff;
+  }
+  .btn-outline {
+    background:transparent; color:var(--muted); border:1px solid var(--border2);
+  }
+  .btn-outline:hover { color:var(--text); border-color:var(--ford-lt); }
+  .btn-red {
+    background:linear-gradient(135deg,#7f1d1d,#dc2626); color:#fff;
+  }
+
+  /* selector table */
+  .sel-table { width:100%; border-collapse:collapse; font-size:10px; }
+  .sel-table th {
+    text-align:left; padding:5px 8px; color:var(--muted);
+    font-family:var(--font-cond); font-weight:600; letter-spacing:.06em;
+    font-size:9px; text-transform:uppercase; border-bottom:1px solid var(--border);
+  }
+  .sel-table td {
+    padding:5px 8px; border-bottom:1px solid rgba(26,37,64,.5);
+    font-family:var(--font-mono); font-size:9px; vertical-align:middle;
+  }
+  .sel-table tr:last-child td { border:none; }
+  .sel-ok { color:var(--green); }
+  .sel-fail { color:var(--red); }
+
+  /* log feed */
+  .log-feed { display:flex; flex-direction:column; gap:4px; }
+  .log-entry {
+    display:flex; gap:10px; padding:7px 10px; border-radius:6px;
+    background:var(--bg3); border:1px solid var(--border);
+    font-size:10px; align-items:flex-start;
+  }
+  .log-time { font-family:var(--font-mono); color:var(--muted); flex-shrink:0; font-size:9px; margin-top:1px; }
+  .log-msg { flex:1; line-height:1.5; }
+  .log-tag {
+    padding:1px 7px; border-radius:99px; font-size:8px; font-weight:700;
+    font-family:var(--font-cond); letter-spacing:.04em; flex-shrink:0; text-transform:uppercase;
+  }
+
+  /* ai copilot */
+  #view-ai {
+    display:flex; flex-direction:column; height:calc(100vh - 90px - 120px);
+    padding:20px; gap:12px;
+  }
+  #ai-messages {
+    flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px;
+    border:1px solid var(--border); border-radius:8px; padding:12px;
+    background:var(--panel);
+  }
+  #ai-messages::-webkit-scrollbar { width:4px; }
+  #ai-messages::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+  .ai-msg {
+    max-width:85%; padding:8px 12px; border-radius:8px; font-size:11px;
+    line-height:1.6; animation:fadeUp .2s ease;
+  }
+  .ai-msg.user { align-self:flex-end; background:var(--ford-dim); color:#dbeafe; border-bottom-right-radius:2px; }
+  .ai-msg.bot { align-self:flex-start; background:var(--bg3); border:1px solid var(--border2); border-bottom-left-radius:2px; }
+  .ai-input-row { display:flex; gap:8px; }
+  .ai-input {
+    flex:1; background:var(--panel); border:1px solid var(--border2);
+    border-radius:8px; padding:9px 14px; font-size:11px; color:var(--text);
+    font-family:var(--font-ui); outline:none; transition:border-color .2s;
+  }
+  .ai-input:focus { border-color:var(--ford-lt); }
+  .ai-quick { display:flex; gap:5px; flex-wrap:wrap; }
+  .ai-quick-btn {
+    padding:3px 10px; border-radius:99px; font-size:9px; font-weight:500;
+    cursor:pointer; background:var(--bg3); border:1px solid var(--border2);
+    color:var(--muted); transition:all .15s;
+  }
+  .ai-quick-btn:hover { border-color:var(--ford-lt); color:var(--ford-lt); }
+
+  /* fleet grid */
+  .fleet-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:10px; padding:20px;
+  }
+  .fleet-card {
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:8px; padding:12px; cursor:pointer; transition:all .2s;
+    border-top:3px solid var(--border);
+  }
+  .fleet-card:hover { border-color:var(--border2); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .fleet-card.healthy { border-top-color:var(--green); }
+  .fleet-card.broken { border-top-color:var(--red); }
+  .fleet-card.healing { border-top-color:var(--purple); }
+  .fleet-card.blocked { border-top-color:var(--orange); }
+  .fleet-card.pending { border-top-color:var(--muted); }
+
+  /* healing log table */
+  #view-log { padding:20px; }
+  .log-table { width:100%; border-collapse:collapse; font-size:10px; }
+  .log-table th {
+    text-align:left; padding:8px 12px; background:var(--panel);
+    border:1px solid var(--border); font-family:var(--font-cond);
+    font-weight:700; font-size:10px; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--muted); position:sticky; top:0; z-index:10;
+  }
+  .log-table td {
+    padding:7px 12px; border:1px solid var(--border);
+    font-family:var(--font-mono); vertical-align:middle;
+  }
+  .log-table tr:nth-child(even) td { background:rgba(14,21,37,.5); }
+
+  /* animations */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes slideIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @keyframes healing-pulse {
+    0%,100% { box-shadow:0 0 0 0 rgba(167,139,250,0); }
+    50% { box-shadow:0 0 0 4px rgba(167,139,250,.3); }
+  }
+
+  .spinner { animation:spin .8s linear infinite; display:inline-block; }
+  .healing-card { animation:healing-pulse 2s ease infinite; }
+
+  .badge {
+    display:inline-flex; align-items:center; padding:1px 7px; border-radius:99px;
+    font-size:9px; font-weight:700; font-family:var(--font-cond);
+    letter-spacing:.04em; text-transform:uppercase;
+  }
+
+  /* progress bar */
+  .progress-wrap { height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:3px; transition:width .6s cubic-bezier(.4,0,.2,1); }
+
+  /* tooltip */
+  [title] { cursor:help; }
+
+  /* notification toast */
+  #toast {
+    position:fixed; bottom:20px; right:20px; z-index:9000;
+    background:var(--panel); border:1px solid var(--border2);
+    border-radius:8px; padding:10px 16px; font-size:11px;
+    box-shadow:0 8px 32px rgba(0,0,0,.6); display:none;
+    animation:slideIn .2s ease;
+  }
+  #toast.show { display:block; }
+
+  /* scrollbars global */
+  #main::-webkit-scrollbar { width:5px; }
+  #main::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ─────────────────────────────────────── -->
+<div id="topbar">
+  <div class="ford-logo">
+    <div class="ford-badge">FORD</div>
+    <div class="lens-label">LENS</div>
+    <span style="font-size:9px;color:var(--muted);font-family:var(--font-mono)">auto-healer</span>
+    <span style="font-size:8px;background:#1a3a70;color:#60a5fa;padding:1px 6px;border-radius:3px;font-family:var(--font-mono);border:1px solid #1a56db">v3</span>
+  </div>
+  <div class="divider-v"></div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchView('garage')">🏎 Garage</div>
+    <div class="tab" onclick="switchView('health')">🏥 Crawler Health</div>
+    <div class="tab" onclick="switchView('quality')">📊 Data Quality</div>
+    <div class="tab" onclick="switchView('fleet')">📡 Fleet Grid</div>
+    <div class="tab" onclick="switchView('log')">🔧 Heal Log</div>
+    <div class="tab" onclick="switchView('ai')">🤖 AI Copilot</div>
+  </div>
+  <div class="topbar-right">
+    <div class="sys-clock" id="clock">--:--:--</div>
+    <button class="run-all-btn" onclick="runAll()">▶ Run All</button>
+    <button class="heal-all-btn" onclick="healAll()">⚡ Heal Broken</button>
+  </div>
+</div>
+
+<!-- ── DATE FILTER BAR ─────────────────────────── -->
+<div id="datebar" style="position:fixed;top:52px;left:0;right:0;z-index:99;height:38px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;">
+  <span style="font-size:9px;font-family:var(--font-cond);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);flex-shrink:0">📅 Date Range</span>
+  <div style="display:flex;gap:4px;flex-shrink:0">
+    <button class="dchip active" data-range="all"    onclick="setDateRange('all')"   >All time</button>
+    <button class="dchip"        data-range="7d"     onclick="setDateRange('7d')"    >7 days</button>
+    <button class="dchip"        data-range="30d"    onclick="setDateRange('30d')"   >30 days</button>
+    <button class="dchip"        data-range="90d"    onclick="setDateRange('90d')"   >90 days</button>
+    <button class="dchip"        data-range="6m"     onclick="setDateRange('6m')"    >6 months</button>
+    <button class="dchip"        data-range="1y"     onclick="setDateRange('1y')"    >1 year</button>
+    <button class="dchip"        data-range="custom" onclick="setDateRange('custom')">Custom</button>
+  </div>
+  <div id="custom-dates" style="display:none;gap:6px;align-items:center;flex-shrink:0">
+    <input type="date" id="date-from" style="background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:3px 7px;font-size:10px;color:var(--text);font-family:var(--font-mono);outline:none" onchange="applyCustomRange()">
+    <span style="color:var(--muted);font-size:10px">→</span>
+    <input type="date" id="date-to"   style="background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:3px 7px;font-size:10px;color:var(--text);font-family:var(--font-mono);outline:none" onchange="applyCustomRange()">
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+    <span id="date-active-label" style="font-family:var(--font-mono);font-size:9px;color:var(--muted)"></span>
+    <span id="date-filter-count" style="font-size:9px;font-family:var(--font-cond);font-weight:700;color:var(--ford-lt);background:rgba(59,130,246,.1);padding:2px 8px;border-radius:99px;border:1px solid rgba(59,130,246,.25)"></span>
+  </div>
+</div>
+
+<style>
+.dchip {
+  padding:2px 9px;border-radius:4px;border:1px solid transparent;
+  font-size:9px;font-weight:700;cursor:pointer;font-family:var(--font-cond);
+  letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+  background:transparent;transition:all .15s;
+}
+.dchip:hover { color:var(--text);border-color:var(--border2);background:var(--bg3); }
+.dchip.active { color:var(--ford-lt);background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.35); }
+</style>
+
+<!-- ── MAIN APP ─────────────────────────────────── -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-search">
+      <input type="text" id="search-input" placeholder="🔍 Search crawlers..." oninput="filterCrawlers()">
+    </div>
+    <div class="filter-chips" id="filter-chips">
+      <div class="chip active" data-filter="all" onclick="setFilter('all')" style="color:var(--text);border-color:var(--border2);background:var(--bg3)">All</div>
+      <div class="chip" data-filter="healthy" onclick="setFilter('healthy')" style="color:var(--green)">✅ Healthy</div>
+      <div class="chip" data-filter="broken" onclick="setFilter('broken')" style="color:var(--red)">❌ Broken</div>
+      <div class="chip" data-filter="healing" onclick="setFilter('healing')" style="color:var(--purple)">⚡ Healing</div>
+      <div class="chip" data-filter="blocked" onclick="setFilter('blocked')" style="color:var(--orange)">⚠ Blocked</div>
+    </div>
+    <div id="crawler-list"></div>
+    <div style="padding:8px 12px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);font-family:var(--font-mono);display:flex;justify-content:space-between;">
+      <span id="sidebar-count">50 crawlers</span>
+      <span id="last-sync">synced 2m ago</span>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main">
+
+    <div id="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" id="s-total" style="color:var(--ford-lt)">50</div>
+        <div class="stat-lbl">Total Crawlers</div>
+        <div class="stat-bar" style="background:var(--ford-lt);width:100%"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="s-healthy" style="color:var(--green)">0</div>
+        <div class="stat-lbl">Healthy</div>
+        <div class="stat-bar" id="bar-healthy" style="background:var(--green);width:0%"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="s-broken" style="color:var(--red)">0</div>
+        <div class="stat-lbl">Broken / Bug</div>
+        <div class="stat-bar" id="bar-broken" style="background:var(--red);width:0%"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="s-healing" style="color:var(--purple)">0</div>
+        <div class="stat-lbl">Healing</div>
+        <div class="stat-bar" id="bar-healing" style="background:var(--purple);width:0%"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="s-posts" style="color:var(--teal)">—</div>
+        <div class="stat-lbl">Posts Collected</div>
+        <div class="stat-bar" id="bar-posts" style="background:var(--teal);width:0%"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="s-completeness" style="color:var(--green)">—%</div>
+        <div class="stat-lbl">Avg Completeness</div>
+        <div class="stat-bar" id="bar-comp" style="background:var(--green);width:0%"></div>
+      </div>
+    </div>
+
+    <!-- GARAGE VIEW (default) -->
+    <div id="view-garage" style="display:flex;height:calc(100vh - 90px - 68px);overflow:hidden;">
+      <div id="detail-panel">
+        <div id="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);">
+          <div style="font-size:48px;opacity:.3">🏎</div>
+          <div style="font-family:var(--font-cond);font-size:16px;font-weight:700;">Select a crawler</div>
+          <div style="font-size:11px;max-width:260px;text-align:center;line-height:1.6;">Click any crawler from the sidebar to inspect selectors, run diagnostics, or trigger AI healing.</div>
+        </div>
+        <div id="detail-content" style="display:none;animation:slideIn .2s ease;"></div>
+      </div>
+    </div>
+
+    <!-- FLEET GRID VIEW -->
+    <div id="view-fleet" style="display:none;overflow-y:auto;height:calc(100vh - 90px - 68px);">
+      <div style="padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:var(--font-cond);font-size:16px;font-weight:700;">Fleet Overview — All Crawlers</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">Weekly scraping cadence</div>
+      </div>
+      <div class="fleet-grid" id="fleet-grid"></div>
+    </div>
+
+    <!-- CRAWLER HEALTH VIEW -->
+    <div id="view-health" style="display:none;overflow-y:auto;height:calc(100vh - 90px - 68px);padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-family:var(--font-cond);font-size:16px;font-weight:700;">🏥 Crawler Health — Graded Overview</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">Score = Selectors 40% · Completeness 30% · Uniqueness 30%</div>
+      </div>
+      <div id="health-list"></div>
+    </div>
+
+    <!-- DATA QUALITY VIEW -->
+    <div id="view-quality" style="display:none;overflow-y:auto;height:calc(100vh - 90px - 68px);padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="font-family:var(--font-cond);font-size:16px;font-weight:700;">📊 Data Quality — Fleet-wide</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">PostgreSQL · synced weekly</div>
+      </div>
+
+      <!-- FLEET GAUGES -->
+      <div class="card" style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;font-family:var(--font-cond);margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Fleet Averages</div>
+        <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;" id="dq-gauges"></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px;" id="dq-fleet-stats"></div>
+      </div>
+
+      <!-- PER-DOMAIN TABLE -->
+      <div class="card">
+        <div style="font-size:11px;font-weight:700;font-family:var(--font-cond);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)">Per-Domain Breakdown</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Domain</th>
+                <th style="text-align:right;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Posts</th>
+                <th style="text-align:right;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Dupes</th>
+                <th style="text-align:right;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Null Authors</th>
+                <th style="text-align:right;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Missing Dates</th>
+                <th style="text-align:right;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Complete%</th>
+                <th style="text-align:right;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">Unique%</th>
+                <th style="text-align:center;padding:6px 10px;font-family:var(--font-cond);font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;">7-day Trend</th>
+              </tr>
+            </thead>
+            <tbody id="dq-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEAL LOG VIEW -->
+    <div id="view-log" style="display:none;overflow-y:auto;height:calc(100vh - 90px - 68px);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-family:var(--font-cond);font-size:16px;font-weight:700;">🔧 Healing Log</div>
+        <button class="btn btn-outline" onclick="clearLog()" style="font-size:10px;padding:4px 12px;">Clear Log</button>
+      </div>
+      <div id="log-feed-view">
+        <table class="log-table" id="heal-log-table">
+          <thead><tr>
+            <th>Time</th><th>Crawler</th><th>Type</th><th>Result</th><th>Selectors Fixed</th><th>Details</th>
+          </tr></thead>
+          <tbody id="heal-log-body"></tbody>
+        </table>
+        <div id="log-empty" style="text-align:center;padding:40px;color:var(--muted);font-size:12px;">No healing events yet. Run a crawler or trigger healing to see logs.</div>
+      </div>
+    </div>
+
+    <!-- AI COPILOT VIEW -->
+    <div id="view-ai" style="display:none;flex-direction:column;height:calc(100vh - 90px - 68px);padding:20px;gap:12px;">
+      <div style="font-family:var(--font-cond);font-size:16px;font-weight:700;">🤖 AI Copilot — Ford LENS</div>
+      <div id="ai-messages">
+        <div class="ai-msg bot">
+          Hello! I'm your Ford LENS AI Copilot. I have full context of your 50 crawlers, selector health, data quality metrics, and healing history.<br><br>
+          Ask me anything — which crawlers need attention, how to bypass Cloudflare on PistonHeads, or to generate new CSS selectors for a broken spider.
+        </div>
+      </div>
+      <div class="ai-quick" id="ai-quick-btns">
+        <div class="ai-quick-btn" onclick="aiAsk('Which crawlers are currently broken?')">Which crawlers are broken?</div>
+        <div class="ai-quick-btn" onclick="aiAsk('Show me the fleet health summary')">Fleet health summary</div>
+        <div class="ai-quick-btn" onclick="aiAsk('How do I bypass Cloudflare on PistonHeads?')">Cloudflare bypass tips</div>
+        <div class="ai-quick-btn" onclick="aiAsk('Which high-priority crawlers need attention?')">High-priority issues</div>
+        <div class="ai-quick-btn" onclick="aiAsk('What are the most common selector failures?')">Common selector failures</div>
+        <div class="ai-quick-btn" onclick="aiAsk('Suggest new XPath selectors for XenForo forums')">XenForo selectors</div>
+      </div>
+      <div class="ai-input-row">
+        <input class="ai-input" id="ai-input-box" placeholder="Ask about crawlers, selectors, anti-bot, data quality..." onkeydown="if(event.key==='Enter')aiSend()">
+        <button class="btn btn-purple" onclick="aiSend()">Send ↵</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CRAWLER DATA (from Crawling_Plans_fluency_.xlsx)
+// ════════════════════════════════════════════════════════════
+function mkTrend(base, len=7) {
+  return Array.from({length:len}, (_,i) => Math.max(0, Math.round(base * (0.7 + Math.random()*0.6) * (i/len*0.4+0.8))));
+}
+function mkDQ(posts, completeness, dupes) {
+  if (!posts) return null;
+  const uniqueness = Math.max(60, Math.min(99, 100 - Math.round(dupes/Math.max(1,posts)*100*8)));
+  const nullAuthors = Math.round(posts * (Math.random()*0.03));
+  const missingDates = Math.round(posts * (Math.random()*0.01));
+  const emptyPosts = Math.round(posts * (Math.random()*0.005));
+  const avgPostLen = Math.round(280 + Math.random()*400);
+  const crawlDays = Math.round(60 + Math.random()*300);
+  const totalRuns = Math.round(crawlDays/7);
+  const contentFill = Math.min(99, Math.round(completeness * (0.95 + Math.random()*0.08)));
+  return { totalPosts:posts, duplicates:dupes, nullAuthors, missingDates, emptyPosts, avgPostLen, crawlDays, totalRuns, completeness, uniqueness, contentFill };
+}
+
+const CRAWLERS = [
+  { id:'explorer-electric-de', name:'Explorer Electric Forum', domain:'explorer-electric-forum.de', url:'https://www.explorer-electric-forum.de/forum/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:12400, dupes:34, completeness:97 },
+  { id:'explorer-forums-uk', name:'Explorer Forums UK', domain:'explorerforums.co.uk', url:'https://www.explorerforums.co.uk/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'phpBB', posts:8900, dupes:12, completeness:98 },
+  { id:'ford-owners-club', name:'Ford Owners Club', domain:'fordownersclub.com', url:'https://www.fordownersclub.com/forums/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'vBulletin', posts:45200, dupes:89, completeness:99 },
+  { id:'forocoches', name:'Forocoches', domain:'forocoches.com', url:'https://forocoches.com/foro/forumdisplay.php', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'vBulletin', posts:22100, dupes:44, completeness:96 },
+  { id:'kuga-forum-de', name:'Kuga Forum DE', domain:'kuga-forum.de', url:'https://www.kuga-forum.de/forum/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:7800, dupes:23, completeness:98 },
+  { id:'mach-e-forum-de', name:'Mach-E Forum DE', domain:'mach-e-forum.de', url:'https://mach-e-forum.de/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:11200, dupes:31, completeness:97 },
+  { id:'puma-forums-uk', name:'Puma Forums UK', domain:'pumaforums.co.uk', url:'https://www.pumaforums.co.uk/index.php', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'phpBB', posts:6700, dupes:18, completeness:98 },
+  { id:'mach-e-forum-com', name:'Mach-E Forum COM', domain:'macheforum.com', url:'https://www.macheforum.com', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-09', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:9400, dupes:27, completeness:97 },
+  { id:'ford-puma-forum-de', name:'Ford Puma Forum DE', domain:'ford-puma-forum.de', url:'https://www.ford-puma-forum.de', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-09', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'phpBB', posts:4300, dupes:9, completeness:99 },
+  { id:'teslari-it', name:'Teslari IT', domain:'teslari.it', url:'https://www.teslari.it', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-12', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:19800, dupes:56, completeness:96 },
+  { id:'speakev', name:'SpeakEV', domain:'speakev.com', url:'https://www.speakev.com', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-12', requestedBy:'Danny', antiBot:true, status:'broken', engine:'XenForo', posts:38700, dupes:102, completeness:88, note:'Cloudflare challenge intermittent' },
+  { id:'skoda-forum-nl', name:'Skoda Forum NL', domain:'skodaforum.nl', url:'https://www.skodaforum.nl', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-09', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'phpBB', posts:5600, dupes:11, completeness:98 },
+  { id:'tesla-motors-club', name:'Tesla Motors Club', domain:'teslamotorsclub.com', url:'https://teslamotorsclub.com', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-20', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'XenForo', posts:87300, dupes:234, completeness:95 },
+  { id:'foro-club-tesla', name:'Foro Club Tesla', domain:'foro.clubtesla.es', url:'https://foro.clubtesla.es', priority:'Low', frequency:'Weekly', lastAcq:'2025-01-19', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'phpBB', posts:3400, dupes:8, completeness:97 },
+  { id:'blog-tesla-fr', name:'Blog Tesla Forum FR', domain:'blogtesla.fr', url:'https://www.blogtesla.fr/forum/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-22', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'phpBB', posts:4100, dupes:14, completeness:96 },
+  { id:'enyaq-forums-uk', name:'Enyaq Forums UK', domain:'enyaqforums.co.uk', url:'https://www.enyaqforums.co.uk', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-25', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:8200, dupes:19, completeness:98 },
+  { id:'peugeot-community-nl', name:'Peugeot Community NL', domain:'peugeot-community.nl', url:'https://peugeot-community.nl', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-31', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'vBulletin', posts:6800, dupes:22, completeness:97 },
+  { id:'id4-forum-de', name:'ID.4 Forum DE', domain:'id4-forum.de', url:'https://www.id4-forum.de', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-25', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:9700, dupes:28, completeness:98 },
+  { id:'forum-peugeot', name:'Forum Peugeot FR', domain:'forum-peugeot.com', url:'https://www.forum-peugeot.com', priority:'Mid', frequency:'Weekly', lastAcq:'2025-01-29', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'phpBB', posts:12300, dupes:41, completeness:95 },
+  { id:'peugeot-forums-com', name:'Peugeot Forums COM', domain:'peugeotforums.com', url:'https://www.peugeotforums.com/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-02-02', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'vBulletin', posts:7900, dupes:33, completeness:96 },
+  { id:'megane-e-forum-de', name:'Mégane E Forum DE', domain:'megane-e-forum.de', url:'https://www.megane-e-forum.de/forum/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-02-04', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:5100, dupes:13, completeness:98 },
+  { id:'meinid-com', name:'MeinID.com', domain:'meinid.com', url:'https://www.meinid.com/board/45-vw-id-4-id-5-forum/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-02-07', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'WBB', posts:6300, dupes:17, completeness:97 },
+  { id:'enyaq-forum-de', name:'Enyaq Forum DE', domain:'enyaq-forum.de', url:'https://www.enyaq-forum.de/forum/', priority:'Mid', frequency:'Weekly', lastAcq:'2025-02-06', requestedBy:'Danny', antiBot:false, status:'healthy', engine:'XenForo', posts:7100, dupes:21, completeness:97 },
+  { id:'automobile-propre', name:'Automobile Propre', domain:'automobile-propre.com', url:'https://automobile-propre.com', priority:'High', frequency:'Weekly', lastAcq:'2025-02-23', requestedBy:'Seb', antiBot:false, status:'healthy', engine:'Custom', posts:28400, dupes:78, completeness:94 },
+  { id:'kuga-owner-club', name:'Kuga Owner Club', domain:'kugaownersclub.co.uk', url:'https://kugaownersclub.co.uk', priority:'High', frequency:'Weekly', lastAcq:'2025-03-14', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'XenForo', posts:11700, dupes:38, completeness:96 },
+  { id:'motor-talk-de', name:'Motor Talk DE', domain:'motor-talk.de', url:'https://www.motor-talk.de', priority:'High', frequency:'Weekly', lastAcq:'2025-06-26', requestedBy:'Danny', antiBot:false, status:'broken', engine:'Custom', posts:0, dupes:0, completeness:0, note:'Spider bug — pagination loop detected' },
+  { id:'ford-forum-de', name:'Ford Forum DE', domain:'ford-forum.de', url:'https://www.ford-forum.de', priority:'High', frequency:'Weekly', lastAcq:'2025-02-22', requestedBy:'Danny', antiBot:true, status:'healthy', engine:'phpBB', posts:14800, dupes:42, completeness:96 },
+  { id:'pistonheads', name:'PistonHeads', domain:'pistonheads.com', url:'https://www.pistonheads.com', priority:'High', frequency:'Weekly', lastAcq:'2025-02-19', requestedBy:'Seb', antiBot:true, status:'blocked', engine:'Custom', posts:67200, dupes:189, completeness:91, note:'Akamai Bot Manager — rotating proxy needed' },
+  { id:'autopareri', name:'Autopareri IT', domain:'autopareri.com', url:'https://www.autopareri.com/', priority:'High', frequency:'Weekly', lastAcq:'2025-06-25', requestedBy:'Seb', antiBot:false, status:'healthy', engine:'vBulletin', posts:31200, dupes:88, completeness:93 },
+  { id:'polestar-forum', name:'Polestar Forum', domain:'polestar-forum.com', url:'https://www.polestar-forum.com/forums/', priority:'High', frequency:'Weekly', lastAcq:'2025-06-23', requestedBy:'Seb', antiBot:false, status:'healthy', engine:'XenForo', posts:18900, dupes:54, completeness:95 },
+  { id:'kia-ev6-forum-de', name:'Kia EV6 Forum DE', domain:'ev6-forum.de', url:'https://www.ev6-forum.de/forum/', priority:'High', frequency:'Weekly', lastAcq:'2025-03-24', requestedBy:'Mia', antiBot:false, status:'healthy', engine:'XenForo', posts:7400, dupes:18, completeness:97 },
+  { id:'id5-forums-uk', name:'ID.5 Forums UK', domain:'id5forums.co.uk', url:'https://www.id5forums.co.uk/', priority:'High', frequency:'Weekly', lastAcq:'2025-03-24', requestedBy:'Mia', antiBot:false, status:'broken', engine:'XenForo', posts:0, dupes:0, completeness:0, note:'Site currently down (HTTP 503)' },
+  { id:'q4-e-tron-forum', name:'Q4 e-tron Forum', domain:'e-tronforum.com', url:'https://www.e-tronforum.com/forums/', priority:'High', frequency:'Weekly', lastAcq:'2025-03-25', requestedBy:'Unknown', antiBot:true, status:'healthy', engine:'XenForo', posts:12600, dupes:35, completeness:96 },
+  { id:'ford-capri-forum-de', name:'Ford Capri Forum DE', domain:'fordcapriforum.de', url:'https://www.fordcapriforum.de/', priority:'High', frequency:'Weekly', lastAcq:'2025-03-16', requestedBy:'Unknown', antiBot:true, status:'healthy', engine:'phpBB', posts:4800, dupes:11, completeness:98 },
+  { id:'capri-forums-uk', name:'Capri Forums UK', domain:'capriforums.co.uk', url:'https://www.capriforums.co.uk/', priority:'High', frequency:'Weekly', lastAcq:'2025-03-21', requestedBy:'Seb', antiBot:false, status:'healthy', engine:'phpBB', posts:3900, dupes:9, completeness:99 },
+  { id:'blueoval-forums', name:'Blue Oval Forums', domain:'blueovalforums.com', url:'https://blueovalforums.com/forums/', priority:'High', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Mahma', antiBot:false, status:'pending', engine:'XenForo', posts:0, dupes:0, completeness:0, note:'Scheduled — not yet started' },
+  { id:'finalgear-forums', name:'Final Gear Forums', domain:'forums.finalgear.com', url:'https://forums.finalgear.com/', priority:'High', frequency:'Weekly', lastAcq:'2025-06-11', requestedBy:'Unknown', antiBot:true, status:'healthy', engine:'XenForo', posts:21300, dupes:67, completeness:93 },
+  { id:'project-puma', name:'Project Puma', domain:'projectpuma.com', url:'https://www.projectpuma.com/', priority:'High', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Mahma', antiBot:false, status:'pending', engine:'phpBB', posts:0, dupes:0, completeness:0, note:'Scheduled — not yet started' },
+  { id:'boards-ie', name:'Boards.ie EV', domain:'boards.ie', url:'https://www.boards.ie/categories/electric-vehicles-hybrids', priority:'High', frequency:'Weekly', lastAcq:'2025-06-25', requestedBy:'Mahma', antiBot:false, status:'healthy', engine:'Vanilla', posts:9100, dupes:28, completeness:95 },
+  { id:'talkford', name:'TalkFord', domain:'talkford.com', url:'https://www.talkford.com/', priority:'High', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Mahma', antiBot:false, status:'pending', engine:'XenForo', posts:0, dupes:0, completeness:0 },
+  { id:'whichmobilitycar', name:'WhichMobilityCar', domain:'forum.whichmobilitycar.co.uk', url:'https://forum.whichmobilitycar.co.uk/', priority:'Low', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Mahma', antiBot:false, status:'pending', engine:'phpBB', posts:0, dupes:0, completeness:0 },
+  { id:'volvo-forums-uk', name:'Volvo Forums UK', domain:'volvoforums.org.uk', url:'https://www.volvoforums.org.uk/', priority:'High', frequency:'Weekly', lastAcq:'2025-06-12', requestedBy:'Unknown', antiBot:true, status:'healthy', engine:'vBulletin', posts:24700, dupes:71, completeness:94 },
+  { id:'ex30-owners', name:'EX30 Owners', domain:'ex30owners.com', url:'https://www.ex30owners.com/', priority:'Mid', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Mahma', antiBot:false, status:'pending', engine:'XenForo', posts:0, dupes:0, completeness:0 },
+  { id:'honestjohn', name:'HonestJohn Ford', domain:'honestjohn.co.uk', url:'https://www.honestjohn.co.uk/Forum/', priority:'High', frequency:'Weekly', lastAcq:'2025-06-24', requestedBy:'Mahma', antiBot:false, status:'healthy', engine:'Custom', posts:16800, dupes:47, completeness:94 },
+  { id:'clubvwid', name:'Club VW ID', domain:'clubvwid.com', url:'https://www.clubvwid.com/', priority:'High', frequency:'Weekly', lastAcq:'2025-06-13', requestedBy:'Unknown', antiBot:true, status:'healthy', engine:'XenForo', posts:13400, dupes:38, completeness:96 },
+  { id:'tff-forum', name:'TFF Forum DE', domain:'tff-forum.de', url:'https://tff-forum.de/', priority:'High', frequency:'Weekly', lastAcq:'N/A', requestedBy:'Seb', antiBot:true, status:'blocked', engine:'Custom', posts:0, dupes:0, completeness:0, note:'Strong anti-bot — needs special bypass strategy' },
+  { id:'kuga-foroclub', name:'Kuga Foroclub ES', domain:'foroclub.es', url:'https://www.foroclub.es/ford-kuga/', priority:'Mid', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Unknown', antiBot:false, status:'pending', engine:'phpBB', posts:0, dupes:0, completeness:0 },
+  { id:'kuga-forumcommunity', name:'Kuga Forum Community', domain:'kuga.forumcommunity.net', url:'https://kuga.forumcommunity.net', priority:'Mid', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Unknown', antiBot:false, status:'pending', engine:'forumcommunity', posts:0, dupes:0, completeness:0 },
+  { id:'hybridlife', name:'HybridLife', domain:'hybridlife.org', url:'https://hybridlife.org/', priority:'Mid', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Unknown', antiBot:false, status:'pending', engine:'phpBB', posts:0, dupes:0, completeness:0, note:'For Puma MCA & Kuga MCA coverage' },
+  { id:'vwidtalk', name:'VW ID Talk', domain:'vwidtalk.com', url:'https://www.vwidtalk.com/', priority:'Mid', frequency:'Weekly', lastAcq:'Pending', requestedBy:'Unknown', antiBot:true, status:'pending', engine:'XenForo', posts:0, dupes:0, completeness:0 },
+];
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let selectedId = null;
+let filterStatus = 'all';
+let searchTerm = '';
+let crawlerState = {};
+let healLog = [];
+let aiHistory = [];
+
+// init state from crawler data
+CRAWLERS.forEach(c => {
+  crawlerState[c.id] = {
+    status: c.status,
+    running: false,
+    healing: false,
+    posts: c.posts,
+    completeness: c.completeness,
+    lastRun: c.status === 'pending' ? null : randomPastTime(),
+    selectors: generateSelectors(c.engine, c.status),
+    dq: mkDQ(c.posts, c.completeness, c.dupes),
+    volumeTrend: c.posts > 0 ? mkTrend(Math.round(c.posts/52), 7) : [],
+  };
+});
+
+function randomPastTime() {
+  const mins = Math.floor(Math.random() * 480) + 30;
+  return new Date(Date.now() - mins * 60000).toISOString();
+}
+
+function generateSelectors(engine, status) {
+  const broken = status === 'broken';
+  const maps = {
+    'XenForo': [
+      { name:'post_author', xpath:'//div[contains(@class,"message-userDetails")]//span[@itemprop="name"]', ok: !broken },
+      { name:'post_content', xpath:'//article[contains(@class,"message-body")]//div[contains(@class,"bbWrapper")]', ok: true },
+      { name:'post_date', xpath:'//time[contains(@class,"u-dt")]/@datetime', ok: !broken },
+      { name:'thread_title', xpath:'//h1[contains(@class,"p-title-value")]', ok: true },
+      { name:'next_page', xpath:'//a[contains(@class,"pageNav-jump--next")]/@href', ok: true },
+    ],
+    'phpBB': [
+      { name:'post_author', xpath:'//dd[contains(@class,"profile-username")]//a', ok: !broken },
+      { name:'post_content', xpath:'//div[contains(@class,"content")]', ok: true },
+      { name:'post_date', xpath:'//time/@datetime', ok: true },
+      { name:'thread_title', xpath:'//h2[contains(@class,"topic-title")]//a', ok: true },
+      { name:'next_page', xpath:'//li[contains(@class,"next")]//a/@href', ok: !broken },
+    ],
+    'vBulletin': [
+      { name:'post_author', xpath:'//div[contains(@class,"author")]//a', ok: true },
+      { name:'post_content', xpath:'//div[contains(@class,"post_message")]', ok: !broken },
+      { name:'post_date', xpath:'//span[contains(@class,"date")]', ok: true },
+      { name:'thread_title', xpath:'//title', ok: true },
+      { name:'next_page', xpath:'//a[@rel="next"]/@href', ok: true },
+    ],
+    'Custom': [
+      { name:'post_author', xpath:'//span[contains(@class,"username")]', ok: !broken },
+      { name:'post_content', xpath:'//div[contains(@class,"post-content")]', ok: !broken },
+      { name:'post_date', xpath:'//time/@datetime', ok: true },
+      { name:'thread_title', xpath:'//h1', ok: true },
+      { name:'next_page', xpath:'//a[@aria-label="Next page"]/@href', ok: true },
+    ],
+    'WBB': [
+      { name:'post_author', xpath:'//span[contains(@class,"username")]', ok: true },
+      { name:'post_content', xpath:'//div[contains(@class,"messageText")]', ok: true },
+      { name:'post_date', xpath:'//span[contains(@class,"messagePublishTime")]//time/@datetime', ok: !broken },
+      { name:'thread_title', xpath:'//h1[contains(@class,"pageTitle")]', ok: true },
+      { name:'next_page', xpath:'//a[contains(@class,"next")]/@href', ok: true },
+    ],
+    'Vanilla': [
+      { name:'post_author', xpath:'//a[contains(@class,"username")]', ok: true },
+      { name:'post_content', xpath:'//div[contains(@class,"Message")]', ok: !broken },
+      { name:'post_date', xpath:'//time/@datetime', ok: true },
+      { name:'thread_title', xpath:'//h1', ok: true },
+      { name:'next_page', xpath:'//a[contains(@class,"NextPage")]/@href', ok: true },
+    ],
+    'forumcommunity': [
+      { name:'post_author', xpath:'//td[@class="td_author"]//b/a', ok: true },
+      { name:'post_content', xpath:'//div[@id="post_message"]', ok: true },
+      { name:'post_date', xpath:'//td[@class="td_date"]', ok: true },
+      { name:'thread_title', xpath:'//title', ok: true },
+      { name:'next_page', xpath:'//a[@class="next"]/@href', ok: true },
+    ],
+  };
+  return maps[engine] || maps['Custom'];
+}
+
+// ════════════════════════════════════════════════════════════
+// SVG HELPERS
+// ════════════════════════════════════════════════════════════
+function svgSparkline(data, color, w, h) {
+  w = w||52; h = h||18;
+  if (!data || data.length < 2) return '<svg width="'+w+'" height="'+h+'"></svg>';
+  var max = Math.max.apply(null,data.concat([1])), min = Math.min.apply(null,data.concat([0])), rg = max-min||1;
+  var pts = data.map(function(v,i){ return (i/(data.length-1))*w+','+(h-2-((v-min)/rg)*(h-4)); }).join(' ');
+  return '<svg width="'+w+'" height="'+h+'" style="display:block"><polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/></svg>';
+}
+
+function svgGauge(value, label, color, size) {
+  size = size||64;
+  var pct = Math.min(100,Math.max(0,value));
+  var r = size/2-5, circ = 2*Math.PI*r, off = circ-(pct/100)*circ;
+  return '<div style="text-align:center;min-width:'+(size+16)+'px">'
+    +'<svg width="'+size+'" height="'+size+'" style="display:block;margin:0 auto">'
+    +'<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="var(--bg3)" stroke-width="5"/>'
+    +'<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+off+'" transform="rotate(-90 '+size/2+' '+size/2+')" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>'
+    +'<text x="'+size/2+'" y="'+(size/2+1)+'" text-anchor="middle" dominant-baseline="central" fill="'+color+'" font-size="11" font-weight="700" font-family="\'JetBrains Mono\',monospace">'+pct+'%</text>'
+    +'</svg>'
+    +'<div style="font-size:8px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-cond);font-weight:600">'+label+'</div>'
+    +'</div>';
+}
+
+function healthBar(label, value, color) {
+  var w = Math.min(100, Math.max(0, value));
+  return '<div style="display:flex;align-items:center;gap:8px;font-size:10px;">'
+    +'<span style="width:70px;color:var(--muted);flex-shrink:0;font-size:9px">'+label+'</span>'
+    +'<div style="flex:1;height:5px;border-radius:3px;background:var(--bg3);overflow:hidden;">'
+    +'<div style="height:100%;border-radius:3px;background:'+color+';width:'+w+'%;transition:width .8s ease"></div>'
+    +'</div>'
+    +'<span style="width:30px;text-align:right;font-family:var(--font-mono);font-weight:600;color:'+color+';font-size:9px">'+Math.round(value)+'%</span>'
+    +'</div>';
+}
+
+// ════════════════════════════════════════════════════════════
+// CRAWLER HEALTH TAB
+// ════════════════════════════════════════════════════════════
+function renderHealthList() {
+  const list = document.getElementById('health-list');
+  const windowDays = activeDateWindowDays();
+  const active = CRAWLERS.filter(c => crawlerState[c.id].status !== 'pending' && crawlerInDateRange(c));
+  const sorted = [...active].sort((a,b) => crawlerScore(a.id) - crawlerScore(b.id));
+  if (!sorted.length) {
+    list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:11px;">No crawlers active in this date range.</div>';
+    return;
+  }
+  list.innerHTML = sorted.map(c => {
+    const st = crawlerState[c.id];
+    const dq = scaledDQ(c);
+    const okSels = st.selectors.filter(s=>s.ok).length;
+    const selPct = Math.round(okSels / Math.max(1, st.selectors.length) * 100);
+    const comp = dq ? dq.completeness : 0;
+    const uniq = dq ? dq.uniqueness : 0;
+    const overall = Math.round(selPct*0.4 + comp*0.3 + uniq*0.3);
+    const grade = overall>=95?'A':overall>=85?'B':overall>=70?'C':overall>=50?'D':'F';
+    const gradeCol = grade==='A'?'var(--green)':grade==='B'?'var(--ford-lt)':grade==='C'?'var(--orange)':'var(--red)';
+    const statusCol = ST_COLOR[st.status] || 'var(--muted)';
+    const trend = scaledTrend(c);
+    const healed = healLog.filter(h=>h.crawlerId===c.id && healLogInDateRange(h)).length;
+    const postsScaled = scaledPosts(c);
+    return `
+    <div class="card" style="margin-bottom:8px;cursor:pointer;transition:border-color .2s;border-left:3px solid ${gradeCol}" onclick="selectCrawlerAndGarage('${c.id}')">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:38px;height:38px;border-radius:8px;background:${gradeCol}18;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:18px;font-weight:800;color:${gradeCol};flex-shrink:0">${grade}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:12px;font-weight:600;font-family:var(--font-mono)">${c.domain}</span>
+            <span class="badge" style="background:${statusCol}22;color:${statusCol};border:1px solid ${statusCol}44">${ST_LABEL[st.status]||st.status}</span>
+            <span class="badge" style="background:#1a254033;color:var(--muted);border:1px solid var(--border)">${c.engine}</span>
+            ${healed ? '<span class="badge" style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44">'+healed+' heals</span>' : ''}
+          </div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px">Score: ${overall}% &bull; ${dq ? fmtNum(postsScaled)+' posts' : 'no data'}${windowDays ? ' ('+windowDays+'d window)' : ''} &bull; ${c.priority} priority &bull; last: ${c.lastAcq}</div>
+        </div>
+        <div style="flex-shrink:0">${svgSparkline(trend, gradeCol, 60, 22)}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        ${healthBar('Selectors', selPct, selPct>=90?'var(--green)':selPct>=70?'var(--orange)':'var(--red)')}
+        ${healthBar('Completeness', comp, comp>=98?'var(--green)':comp>=90?'var(--orange)':'var(--red)')}
+        ${healthBar('Uniqueness', uniq, uniq>=98?'var(--green)':uniq>=90?'var(--orange)':'var(--red)')}
+      </div>
+      ${st.status==='blocked'&&c.note ? '<div style="margin-top:8px;padding:4px 8px;border-radius:4px;background:#ef444410;font-size:9px;color:#fca5a5">⚠ '+c.note+'</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function crawlerScore(id) {
+  const st = crawlerState[id];
+  const dq = st.dq;
+  const selPct = Math.round(st.selectors.filter(s=>s.ok).length / Math.max(1,st.selectors.length)*100);
+  return Math.round(selPct*0.4 + (dq?.completeness||0)*0.3 + (dq?.uniqueness||0)*0.3);
+}
+
+// ════════════════════════════════════════════════════════════
+// DATA QUALITY TAB
+// ════════════════════════════════════════════════════════════
+function renderDataQuality() {
+  const windowDays = activeDateWindowDays();
+  const withDQ = CRAWLERS.filter(c => crawlerState[c.id].dq && crawlerInDateRange(c));
+  // use scaled DQ values for the active window
+  const dqVals = withDQ.map(c => scaledDQ(c));
+  const totalPosts    = dqVals.reduce((s,d) => s+(d.totalPosts||0), 0);
+  const totalDupes    = dqVals.reduce((s,d) => s+(d.duplicates||0), 0);
+  const totalNullAuth = dqVals.reduce((s,d) => s+(d.nullAuthors||0), 0);
+  const totalMissDates= dqVals.reduce((s,d) => s+(d.missingDates||0), 0);
+  const avgComp    = Math.round(dqVals.reduce((s,d)=>s+(d.completeness||0),0)/Math.max(1,dqVals.length));
+  const avgUniq    = Math.round(dqVals.reduce((s,d)=>s+(d.uniqueness||0),0)/Math.max(1,dqVals.length));
+  const avgContent = Math.round(dqVals.reduce((s,d)=>s+(d.contentFill||0),0)/Math.max(1,dqVals.length));
+
+  // gauges
+  document.getElementById('dq-gauges').innerHTML =
+    svgGauge(avgComp, 'Completeness', 'var(--green)', 72) +
+    svgGauge(avgUniq, 'Uniqueness', 'var(--ford-lt)', 72) +
+    svgGauge(avgContent, 'Content Fill', '#c084fc', 72);
+
+  // fleet stats
+  document.getElementById('dq-fleet-stats').innerHTML = [
+    { l:'Total Posts',    v:fmtNum(totalPosts),              c:'var(--ford-lt)' },
+    { l:'Unique Posts',   v:fmtNum(totalPosts-totalDupes),   c:'var(--purple)'  },
+    { l:'Duplicates',     v:fmtNum(totalDupes),              c:totalDupes>5000?'var(--orange)':'var(--green)' },
+    { l:'Null Authors',   v:fmtNum(totalNullAuth),           c:totalNullAuth>500?'var(--orange)':'var(--green)' },
+    { l:'Missing Dates',  v:fmtNum(totalMissDates),          c:totalMissDates>200?'var(--orange)':'var(--green)' },
+    { l:'Domains Active', v:withDQ.length,                   c:'var(--teal)' },
+    { l:'Window',         v:windowDays ? windowDays+'d' : 'All', c:'var(--muted)' },
+  ].map(m=>'<div class="mini-card"><div class="mini-card-val" style="color:'+m.c+'">'+m.v+'</div><div class="mini-card-lbl">'+m.l+'</div></div>').join('');
+
+  // per-domain table (sorted by scaled post count)
+  const sorted = [...withDQ].sort((a,b) => (scaledDQ(b).totalPosts||0)-(scaledDQ(a).totalPosts||0));
+  document.getElementById('dq-table-body').innerHTML = sorted.map(c => {
+    const dq = scaledDQ(c);
+    const trend = scaledTrend(c);
+    const compCol = dq.completeness>=98?'var(--green)':dq.completeness>=90?'var(--orange)':'var(--red)';
+    const uniqCol = dq.uniqueness>=98?'var(--green)':dq.uniqueness>=90?'var(--orange)':'var(--red)';
+    const dupeCol = dq.duplicates>50?'var(--orange)':'var(--muted)';
+    const nullCol = dq.nullAuthors>20?'var(--orange)':'var(--muted)';
+    return '<tr style="border-bottom:1px solid rgba(26,37,64,.5);cursor:pointer" onclick="selectCrawlerAndGarage(\''+c.id+'\')" onmouseover="this.style.background=\'rgba(26,86,219,.06)\'" onmouseout="this.style.background=\'\'">'
+      +'<td style="padding:6px 10px;font-family:var(--font-mono);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px">'+c.domain+'</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-family:var(--font-mono);font-size:10px;font-weight:600">'+fmtNum(dq.totalPosts)+'</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-family:var(--font-mono);font-size:10px;color:'+dupeCol+'">'+dq.duplicates+'</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-family:var(--font-mono);font-size:10px;color:'+nullCol+'">'+dq.nullAuthors+'</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-family:var(--font-mono);font-size:10px;color:'+nullCol+'">'+dq.missingDates+'</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-family:var(--font-mono);font-size:10px;color:'+compCol+';font-weight:600">'+dq.completeness+'%</td>'
+      +'<td style="padding:6px 10px;text-align:right;font-family:var(--font-mono);font-size:10px;color:'+uniqCol+';font-weight:600">'+dq.uniqueness+'%</td>'
+      +'<td style="padding:6px 10px;text-align:center">'+svgSparkline(trend, dq.completeness>=95?'var(--green)':'var(--orange)', 52, 14)+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function fmtNum(n) {
+  return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':String(n||0);
+}
+
+
+// ════════════════════════════════════════════════════════════
+// DATE FILTER STATE & LOGIC
+// ════════════════════════════════════════════════════════════
+let dateRange = 'all';
+let dateFrom  = null;
+let dateTo    = null;
+
+function setDateRange(range) {
+  dateRange = range;
+  document.querySelectorAll('.dchip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+  const customEl = document.getElementById('custom-dates');
+  customEl.style.display = range === 'custom' ? 'flex' : 'none';
+  if (range !== 'custom') {
+    const now = new Date();
+    dateTo = now;
+    if (range === 'all') { dateFrom = null; dateTo = null; }
+    else if (range === '7d')  dateFrom = new Date(now - 7*864e5);
+    else if (range === '30d') dateFrom = new Date(now - 30*864e5);
+    else if (range === '90d') dateFrom = new Date(now - 90*864e5);
+    else if (range === '6m')  dateFrom = new Date(now.getFullYear(), now.getMonth()-6, now.getDate());
+    else if (range === '1y')  dateFrom = new Date(now.getFullYear()-1, now.getMonth(), now.getDate());
+    if (dateFrom) document.getElementById('date-from').value = dateFrom.toISOString().slice(0,10);
+    if (dateTo)   document.getElementById('date-to').value   = dateTo.toISOString().slice(0,10);
+    updateDateLabel();
+    refreshAllViews();
+  }
+}
+
+function applyCustomRange() {
+  const f = document.getElementById('date-from').value;
+  const t = document.getElementById('date-to').value;
+  if (f) dateFrom = new Date(f);
+  if (t) { dateTo = new Date(t); dateTo.setHours(23,59,59); }
+  updateDateLabel();
+  refreshAllViews();
+}
+
+function updateDateLabel() {
+  const lbl = document.getElementById('date-active-label');
+  const cnt = document.getElementById('date-filter-count');
+  if (!dateFrom) {
+    lbl.textContent = 'Showing all time';
+    const active = CRAWLERS.filter(c => c.lastAcq && c.lastAcq !== 'Pending' && c.lastAcq !== 'N/A').length;
+    cnt.textContent = active + ' crawlers active';
+    return;
+  }
+  const fmtD = function(d){ return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); };
+  lbl.textContent = fmtD(dateFrom) + (dateTo ? ' → ' + fmtD(dateTo) : '');
+  const inRange = CRAWLERS.filter(function(c){ return crawlerInDateRange(c); }).length;
+  cnt.textContent = inRange + ' crawlers in range';
+}
+
+function crawlerInDateRange(c) {
+  if (!dateFrom) return true;
+  if (!c.lastAcq || c.lastAcq === 'Pending' || c.lastAcq === 'N/A') return false;
+  const d = new Date(c.lastAcq);
+  if (isNaN(d.getTime())) return false;
+  if (dateFrom && d < dateFrom) return false;
+  if (dateTo   && d > dateTo)   return false;
+  return true;
+}
+
+function healLogInDateRange(entry) {
+  if (!dateFrom) return true;
+  const d = new Date(entry.time);
+  if (dateFrom && d < dateFrom) return false;
+  if (dateTo   && d > dateTo)   return false;
+  return true;
+}
+
+function activeDateWindowDays() {
+  if (!dateFrom) return null;
+  return Math.max(1, Math.round(((dateTo || new Date()) - dateFrom) / 864e5));
+}
+
+function scaledPosts(c) {
+  const st = crawlerState[c.id];
+  if (!dateFrom || !st.posts) return st.posts;
+  const fullDays = (st.dq && st.dq.crawlDays) ? st.dq.crawlDays : 180;
+  const windowDays = activeDateWindowDays();
+  const ratio = Math.min(1, windowDays / Math.max(1, fullDays));
+  return Math.round(st.posts * ratio);
+}
+
+function scaledTrend(c) {
+  const st = crawlerState[c.id];
+  if (!st.volumeTrend || !st.volumeTrend.length) return [];
+  if (!dateFrom) return st.volumeTrend;
+  const windowDays = activeDateWindowDays();
+  const bars = Math.min(7, Math.max(1, Math.round(windowDays / 7)));
+  return st.volumeTrend.slice(-bars);
+}
+
+function scaledDQ(c) {
+  const st = crawlerState[c.id];
+  if (!st.dq || !dateFrom) return st.dq;
+  const fullDays = st.dq.crawlDays || 180;
+  const windowDays = activeDateWindowDays();
+  const ratio = Math.min(1, windowDays / Math.max(1, fullDays));
+  return Object.assign({}, st.dq, {
+    totalPosts:    Math.round(st.dq.totalPosts * ratio),
+    duplicates:    Math.round(st.dq.duplicates * ratio),
+    nullAuthors:   Math.round(st.dq.nullAuthors * ratio),
+    missingDates:  Math.round(st.dq.missingDates * ratio),
+    emptyPosts:    Math.round(st.dq.emptyPosts * ratio),
+    crawlDays:     Math.min(st.dq.crawlDays, windowDays),
+    totalRuns:     Math.max(1, Math.round(st.dq.totalRuns * ratio)),
+  });
+}
+
+function refreshAllViews() {
+  renderSidebar();
+  renderStats();
+  const views = ['garage','health','quality','fleet','log','ai'];
+  const active = views.find(function(v){
+    const el = document.getElementById('view-'+v);
+    return el && el.style.display !== 'none';
+  });
+  if (active === 'health')  renderHealthList();
+  if (active === 'quality') renderDataQuality();
+  if (active === 'fleet')   renderFleetGrid();
+  if (active === 'log')     renderHealLog();
+  if (active === 'garage' && selectedId) renderDetail(selectedId);
+}
+
+const ST_COLOR = { healthy:'#22c55e', broken:'#ef4444', healing:'#a78bfa', blocked:'#f97316', pending:'#4a5a7a' };
+const ST_LABEL = { healthy:'HEALTHY', broken:'BROKEN', healing:'HEALING', blocked:'BLOCKED', pending:'PENDING' };
+
+function renderSidebar() {
+  const list = document.getElementById('crawler-list');
+  const term = searchTerm.toLowerCase();
+  const items = CRAWLERS.filter(c => {
+    if (filterStatus !== 'all' && crawlerState[c.id].status !== filterStatus) return false;
+    if (term && !c.name.toLowerCase().includes(term) && !c.domain.toLowerCase().includes(term)) return false;
+    if (dateFrom && !crawlerInDateRange(c)) return false;
+    return true;
+  });
+  list.innerHTML = items.map(c => {
+    const st = crawlerState[c.id];
+    const col = ST_COLOR[st.status] || '#4a5a7a';
+    const priCol = c.priority === 'High' ? '#ef4444' : c.priority === 'Mid' ? '#f97316' : '#4a5a7a';
+    return `<div class="crawler-item${selectedId===c.id?' selected':''}" onclick="selectCrawler('${c.id}')">
+      <div class="status-dot${st.status==='healing'?' pulse':''}" style="background:${col};box-shadow:0 0 6px ${col}88"></div>
+      <div style="flex:1;min-width:0">
+        <div class="crawler-name">${c.name}</div>
+        <div class="crawler-domain">${c.domain}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <div class="priority-pip" style="background:${priCol}" title="${c.priority} priority"></div>
+        ${c.antiBot ? '<div style="font-size:8px;color:#f97316" title="Anti-bot bypass required">🛡</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('sidebar-count').textContent = `${items.length} of ${CRAWLERS.length}`;
+}
+
+function renderStats() {
+  const activeCrawlers = dateFrom ? CRAWLERS.filter(c => crawlerInDateRange(c)) : CRAWLERS;
+  const counts = { healthy:0, broken:0, healing:0, blocked:0, pending:0 };
+  activeCrawlers.forEach(c => { const s = crawlerState[c.id].status; if(counts[s]!==undefined) counts[s]++; });
+  const totalPosts = activeCrawlers.reduce((s,c) => s + scaledPosts(c), 0);
+  const withComp = activeCrawlers.filter(c => crawlerState[c.id].completeness > 0);
+  const avgComp = withComp.length ? Math.round(withComp.reduce((s,c)=>s+crawlerState[c.id].completeness,0)/withComp.length) : 0;
+
+  document.getElementById('s-total').textContent = CRAWLERS.length;
+  document.getElementById('s-healthy').textContent = counts.healthy;
+  document.getElementById('s-broken').textContent = counts.broken + counts.blocked;
+  document.getElementById('s-healing').textContent = counts.healing;
+  document.getElementById('s-posts').textContent = fmtNum(totalPosts);
+  document.getElementById('s-completeness').textContent = avgComp + '%';
+  document.getElementById('bar-healthy').style.width = (counts.healthy/CRAWLERS.length*100)+'%';
+  document.getElementById('bar-broken').style.width = ((counts.broken+counts.blocked)/CRAWLERS.length*100)+'%';
+  document.getElementById('bar-healing').style.width = (counts.healing/CRAWLERS.length*100)+'%';
+  document.getElementById('bar-posts').style.width = Math.min(100, totalPosts/10000)+'%';
+  document.getElementById('bar-comp').style.width = avgComp+'%';
+}
+
+function renderDetail(id) {
+  const c = CRAWLERS.find(x => x.id === id);
+  if (!c) return;
+  const st = crawlerState[id];
+  const dq = scaledDQ(c);
+  const col = ST_COLOR[st.status] || '#4a5a7a';
+  const running = st.running;
+  const healing = st.healing;
+  const brokenSels = st.selectors.filter(s => !s.ok);
+  const okSels = st.selectors.filter(s => s.ok);
+  const lastRunAgo = st.lastRun ? timeAgo(st.lastRun) : 'never';
+  const postsFmt = st.posts >= 1000 ? (st.posts/1000).toFixed(1)+'k' : String(st.posts||0);
+
+  document.getElementById('empty-state').style.display = 'none';
+  const detail = document.getElementById('detail-content');
+  detail.style.display = 'block';
+  detail.innerHTML = `
+    <!-- HEADER -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div class="panel-title">${c.name}</div>
+        <div class="panel-subtitle" style="margin-top:3px">
+          <a href="${c.url}" target="_blank" style="color:var(--ford-lt);text-decoration:none">${c.domain}</a>
+          &nbsp;·&nbsp; ${c.engine} &nbsp;·&nbsp; Requested by ${c.requestedBy}
+          ${c.antiBot ? '&nbsp;·&nbsp; <span style="color:#f97316">🛡 Anti-bot active</span>' : ''}
+        </div>
+        ${c.note ? `<div style="margin-top:5px;font-size:10px;color:var(--orange);font-style:italic">⚠ ${c.note}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="badge" style="background:${col}22;color:${col};border:1px solid ${col}44;">
+          <div style="width:6px;height:6px;border-radius:50%;background:${col};margin-right:5px;${st.status==='healing'?'animation:pulse-dot 1.5s ease infinite':''}"></div>
+          ${ST_LABEL[st.status]||st.status}
+        </div>
+        <div class="badge" style="background:#1a3a7022;color:#60a5fa;border:1px solid #1a56db44;">${c.priority.toUpperCase()} PRI</div>
+        <div class="badge" style="background:#1a25400a;color:var(--muted);border:1px solid var(--border);">📅 ${c.frequency}</div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-bar">
+      <button class="btn btn-blue" id="btn-run-${id}" onclick="runCrawler('${id}')" ${running?'disabled':''}>
+        ${running ? '<span class="spinner">⟳</span> Running...' : '▶ Run Crawler'}
+      </button>
+      <button class="btn btn-purple" id="btn-heal-${id}" onclick="healCrawler('${id}')" ${healing||brokenSels.length===0?'disabled':''}>
+        ${healing ? '<span class="spinner">⟳</span> Healing...' : `⚡ AI Heal (${brokenSels.length} broken)`}
+      </button>
+      <button class="btn btn-outline" onclick="diagnoseCrawler('${id}')">🔍 Diagnose</button>
+      <button class="btn btn-outline" onclick="viewLogs('${id}')">📋 View Logs</button>
+      ${st.status==='broken'||st.status==='blocked' ? `<button class="btn btn-red" onclick="escalate('${id}')">🚨 Escalate</button>` : ''}
+    </div>
+
+    <!-- METRICS GRID -->
+    <div class="cards-grid">
+      <div class="mini-card">
+        <div class="mini-card-val" style="color:${col}">${ST_LABEL[st.status]||'-'}</div>
+        <div class="mini-card-lbl">Status</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-val" style="color:var(--ford-lt)">${postsFmt}</div>
+        <div class="mini-card-lbl">Posts Collected</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-val" style="color:${st.completeness>95?'var(--green)':st.completeness>85?'var(--orange)':'var(--red)'}">${st.completeness||0}%</div>
+        <div class="mini-card-lbl">Completeness</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-val" style="color:${brokenSels.length===0?'var(--green)':'var(--red)'}">${okSels.length}/${st.selectors.length}</div>
+        <div class="mini-card-lbl">Selectors OK</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-val">${c.posts>0?Math.floor(c.posts*0.003):0}</div>
+        <div class="mini-card-lbl">Duplicates</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-val" style="color:var(--muted);font-size:10px">${lastRunAgo}</div>
+        <div class="mini-card-lbl">Last Run</div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    ${st.status === 'healing' ? `
+    <div class="card" style="margin-bottom:14px;border-color:#7c3aed44;">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;">
+        <span style="color:#a78bfa;font-weight:600">⚡ AI Healing in progress...</span>
+        <span id="heal-pct-${id}" style="font-family:var(--font-mono);color:#a78bfa">0%</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-fill" id="heal-bar-${id}" style="background:linear-gradient(90deg,#7c3aed,#a78bfa);width:0%"></div>
+      </div>
+    </div>` : ''}
+
+    <!-- SELECTORS -->
+    <div class="section-head">Selectors</div>
+    <div class="card" style="margin-bottom:14px;overflow-x:auto;">
+      <table class="sel-table" style="width:100%">
+        <thead><tr>
+          <th>Status</th><th>Selector Name</th><th>XPath / CSS</th><th>Action</th>
+        </tr></thead>
+        <tbody>
+          ${st.selectors.map((s,i) => `
+          <tr id="sel-${id}-${i}">
+            <td><span class="${s.ok?'sel-ok':'sel-fail'}">${s.ok?'✓ OK':'✗ FAIL'}</span></td>
+            <td style="font-weight:600;color:var(--text)">${s.name}</td>
+            <td style="color:var(--muted);max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${s.xpath}">${s.xpath}</td>
+            <td>${!s.ok ? `<button class="btn btn-purple" style="padding:2px 8px;font-size:8px" onclick="healSelector('${id}',${i})">Fix</button>` : ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DATA QUALITY -->
+    ${dq ? `
+    <div class="section-head">Data Quality ${activeDateWindowDays() ? '<span style="font-size:8px;font-weight:400;color:var(--muted);margin-left:6px">('+activeDateWindowDays()+'d window)</span>' : ''}</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:5px;margin-bottom:10px">
+        ${[
+          {l:'Total Posts', v:fmtNum(dq.totalPosts), c:'var(--ford-lt)'},
+          {l:'Duplicates',  v:dq.duplicates, c:dq.duplicates>50?'var(--orange)':'var(--green)'},
+          {l:'Null Authors',v:dq.nullAuthors, c:dq.nullAuthors>20?'var(--orange)':'var(--green)'},
+          {l:'No Dates',    v:dq.missingDates, c:dq.missingDates>10?'var(--orange)':'var(--green)'},
+          {l:'Empty Posts', v:dq.emptyPosts, c:dq.emptyPosts>5?'var(--orange)':'var(--green)'},
+          {l:'Avg Length',  v:dq.avgPostLen+'ch', c:'var(--text)'},
+          {l:'Crawl Days',  v:dq.crawlDays, c:'var(--teal)'},
+          {l:'Total Runs',  v:dq.totalRuns, c:'var(--teal)'},
+        ].map(m=>`<div class="mini-card"><div class="mini-card-val" style="color:${m.c};font-size:13px">${m.v}</div><div class="mini-card-lbl">${m.l}</div></div>`).join('')}
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px">
+        ${healthBar('Completeness', dq.completeness, dq.completeness>=98?'var(--green)':dq.completeness>=90?'var(--orange)':'var(--red)')}
+        ${healthBar('Uniqueness', dq.uniqueness, dq.uniqueness>=98?'var(--green)':dq.uniqueness>=90?'var(--orange)':'var(--red)')}
+      </div>
+      ${st.volumeTrend && st.volumeTrend.length > 1 ? `
+      <div style="margin-top:8px">
+        <div style="font-size:8px;color:var(--muted);margin-bottom:4px;font-family:var(--font-cond);font-weight:600;text-transform:uppercase;letter-spacing:.06em">7-Day Volume Trend</div>
+        ${svgSparkline(st.volumeTrend, dq.completeness>=95?'var(--green)':'var(--orange)', 260, 28)}
+      </div>` : ''}
+    </div>` : `
+    <div class="section-head">Data Quality</div>
+    <div style="padding:12px;text-align:center;color:var(--muted);font-size:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:14px">
+      No data quality metrics available — run the crawler first.
+    </div>`}
+
+    <!-- HEAL HISTORY -->
+    <div class="section-head">Heal History</div>
+    <div class="log-feed" id="heal-hist-${id}">
+      ${getHealHistory(id).length === 0
+        ? `<div style="padding:12px;text-align:center;color:var(--muted);font-size:10px">No healing events for this crawler yet.</div>`
+        : getHealHistory(id).map(h => `
+          <div class="log-entry">
+            <div class="log-time">${timeAgo(h.time)}</div>
+            <div class="log-msg">${h.msg}</div>
+            <div class="log-tag" style="background:${h.type==='heal'?'#7c3aed22':'#1a56db22'};color:${h.type==='heal'?'#a78bfa':'#60a5fa'}">${h.type.toUpperCase()}</div>
+          </div>`).join('')}
+    </div>
+  `;
+}
+
+function getHealHistory(id) {
+  return healLog.filter(h => h.crawlerId === id).slice(-5).reverse();
+}
+
+function renderFleetGrid() {
+  const grid = document.getElementById('fleet-grid');
+  const filtered = CRAWLERS.filter(c => crawlerInDateRange(c));
+  if (!filtered.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--muted);font-size:11px;">No crawlers active in this date range.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(c => {
+    const st = crawlerState[c.id];
+    const col = ST_COLOR[st.status];
+    const posts = scaledPosts(c);
+    const postsFmt = posts >= 1000 ? (posts/1000).toFixed(1)+'k' : String(posts||0);
+    return '<div class="fleet-card '+st.status+'" onclick="selectCrawlerAndGarage(\''+c.id+'\')">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">'
+      +'<div style="font-weight:600;font-size:12px;line-height:1.3;flex:1">'+c.name+'</div>'
+      +'<div class="status-dot'+(st.status==='healing'?' pulse':'')+'" style="background:'+col+';box-shadow:0 0 8px '+col+'99;flex-shrink:0;margin-left:8px;width:8px;height:8px"></div>'
+      +'</div>'
+      +'<div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-bottom:8px">'+c.domain+'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'
+      +'<span class="badge" style="background:'+col+'22;color:'+col+';border:1px solid '+col+'44;font-size:8px">'+ST_LABEL[st.status]+'</span>'
+      +'<span class="badge" style="background:#1a254033;color:var(--muted);border:1px solid var(--border);font-size:8px">'+c.priority+'</span>'
+      +(c.antiBot ? '<span class="badge" style="background:#f9731622;color:#f97316;border:1px solid #f9731644;font-size:8px">🛡 AntiBot</span>' : '')
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)">'
+      +'<span>📄 '+postsFmt+' posts</span>'
+      +'<span style="font-family:var(--font-mono);font-size:9px">'+c.engine+'</span>'
+      +'</div>'
+      +(posts > 0 ? '<div style="margin-top:6px"><div class="progress-wrap" style="height:3px"><div class="progress-fill" style="background:'+col+';width:'+(st.completeness||0)+'%"></div></div><div style="font-size:8px;color:var(--muted);margin-top:2px;text-align:right">'+(st.completeness||0)+'% complete</div></div>' : '')
+      +'<div style="font-size:8px;color:var(--muted);margin-top:5px;font-family:var(--font-mono)">last: '+c.lastAcq+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderHealLog() {
+  const tbody = document.getElementById('heal-log-body');
+  const empty = document.getElementById('log-empty');
+  const filtered = healLog.filter(h => healLogInDateRange(h));
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = dateFrom
+      ? 'No healing events in this date range.'
+      : 'No healing events yet. Run a crawler or trigger healing to see logs.';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = [...filtered].reverse().map(h => {
+    const c = CRAWLERS.find(x => x.id === h.crawlerId);
+    const typeCol = h.type === 'heal' ? '#a78bfa' : h.type === 'run' ? '#60a5fa' : '#22c55e';
+    return '<tr>'
+      +'<td style="color:var(--muted);font-size:9px">'+timeAgo(h.time)+'</td>'
+      +'<td style="font-weight:600;color:var(--text)">'+(c ? c.name : h.crawlerId)+'</td>'
+      +'<td><span class="badge" style="background:'+typeCol+'22;color:'+typeCol+';border:1px solid '+typeCol+'44">'+h.type.toUpperCase()+'</span></td>'
+      +'<td><span style="color:'+(h.success?'var(--green)':'var(--red)')+'">'+(h.success?'✓ Success':'✗ Failed')+'</span></td>'
+      +'<td style="color:var(--muted)">'+(h.fixedCount||0)+' selectors</td>'
+      +'<td style="color:var(--muted);font-size:9px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+h.msg+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// ACTIONS
+// ════════════════════════════════════════════════════════════
+function selectCrawler(id) {
+  selectedId = id;
+  renderSidebar();
+  renderDetail(id);
+}
+
+function selectCrawlerAndGarage(id) {
+  switchView('garage');
+  selectCrawler(id);
+}
+
+function runCrawler(id) {
+  const st = crawlerState[id];
+  if (st.running) return;
+  st.running = true;
+  if (selectedId === id) renderDetail(id);
+  renderSidebar();
+  toast('▶ Crawler started: ' + CRAWLERS.find(c=>c.id===id)?.name);
+
+  const duration = 4000 + Math.random() * 4000;
+  setTimeout(() => {
+    st.running = false;
+    st.lastRun = new Date().toISOString();
+    // simulate some new posts
+    const c = CRAWLERS.find(x=>x.id===id);
+    if (c && st.status === 'healthy') {
+      st.posts += Math.floor(Math.random() * 200) + 50;
+    }
+    addLog(id, 'run', true, 0, `Crawl completed. ${Math.floor(Math.random()*150)+20} new posts collected.`);
+    renderStats();
+    renderSidebar();
+    if (selectedId === id) renderDetail(id);
+    toast('✅ Crawl complete: ' + c?.name);
+  }, duration);
+}
+
+function healCrawler(id) {
+  const st = crawlerState[id];
+  if (st.healing) return;
+  const brokenSels = st.selectors.filter(s => !s.ok);
+  if (brokenSels.length === 0) { toast('No broken selectors to heal.'); return; }
+
+  st.healing = true;
+  st.status = 'healing';
+  if (selectedId === id) renderDetail(id);
+  renderSidebar();
+  renderStats();
+  toast('⚡ AI healing started: ' + CRAWLERS.find(c=>c.id===id)?.name);
+
+  // animate progress bar
+  let pct = 0;
+  const progressInt = setInterval(() => {
+    pct = Math.min(95, pct + Math.random() * 12);
+    const bar = document.getElementById(`heal-bar-${id}`);
+    const pctEl = document.getElementById(`heal-pct-${id}`);
+    if (bar) bar.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+  }, 400);
+
+  const duration = 5000 + Math.random() * 4000;
+  setTimeout(() => {
+    clearInterval(progressInt);
+    // fix selectors
+    let fixed = 0;
+    st.selectors.forEach(s => {
+      if (!s.ok && Math.random() > 0.2) {
+        s.ok = true;
+        s.xpath = s.xpath.replace(/\[contains\(@class,"[^"]*"\)\]/, `[contains(@class,"${randomClass()}")]`);
+        fixed++;
+      }
+    });
+    st.healing = false;
+    const stillBroken = st.selectors.some(s => !s.ok);
+    st.status = stillBroken ? 'broken' : 'healthy';
+    st.completeness = stillBroken ? Math.max(60, st.completeness - 10) : Math.min(99, (st.completeness||80) + 5);
+    addLog(id, 'heal', !stillBroken, fixed, `AI healing complete. ${fixed}/${brokenSels.length} selectors repaired.`);
+    renderSidebar();
+    renderStats();
+    if (selectedId === id) renderDetail(id);
+    renderHealLog();
+    toast(`${stillBroken?'⚠':'✅'} Healing done: ${fixed} selectors fixed`);
+  }, duration);
+}
+
+function healSelector(id, idx) {
+  const st = crawlerState[id];
+  toast('⚡ AI healing single selector...');
+  setTimeout(() => {
+    st.selectors[idx].ok = true;
+    st.selectors[idx].xpath += `[@data-v="${Math.random().toString(36).slice(2,6)}"]`;
+    const stillBroken = st.selectors.some(s=>!s.ok);
+    if (!stillBroken && st.status==='broken') {
+      st.status = 'healthy';
+      renderStats();
+    }
+    addLog(id, 'heal', true, 1, `Single selector "${st.selectors[idx].name}" healed by AI.`);
+    if (selectedId === id) renderDetail(id);
+    renderSidebar();
+    renderHealLog();
+    toast('✅ Selector fixed: ' + st.selectors[idx].name);
+  }, 2000);
+}
+
+function diagnoseCrawler(id) {
+  const c = CRAWLERS.find(x=>x.id===id);
+  toast('🔍 Running diagnostics on ' + c?.name + '...');
+  setTimeout(() => {
+    const msgs = [
+      'Selectors validated against live HTML.',
+      'IP not blocked — 200 OK received.',
+      'Pagination detected: 12 pages available.',
+      'Rate limit: 1 req/3s recommended.',
+    ];
+    addLog(id, 'diagnose', true, 0, msgs[Math.floor(Math.random()*msgs.length)]);
+    if (selectedId === id) renderDetail(id);
+    renderHealLog();
+    toast('🔍 Diagnostics complete');
+  }, 2500);
+}
+
+function viewLogs(id) {
+  switchView('log');
+  setTimeout(renderHealLog, 50);
+}
+
+function escalate(id) {
+  const c = CRAWLERS.find(x=>x.id===id);
+  toast('🚨 Escalation raised for ' + c?.name + ' — team notified via Slack');
+  addLog(id, 'escalate', false, 0, 'Crawler escalated to engineering team. Slack alert sent.');
+  renderHealLog();
+}
+
+function runAll() {
+  const broken = CRAWLERS.filter(c => crawlerState[c.id].status === 'broken' || crawlerState[c.id].status === 'healthy');
+  toast(`▶ Running ${broken.length} crawlers...`);
+  broken.slice(0, 3).forEach((c, i) => setTimeout(() => runCrawler(c.id), i * 500));
+}
+
+function healAll() {
+  const brokens = CRAWLERS.filter(c => ['broken','blocked'].includes(crawlerState[c.id].status));
+  if (brokens.length === 0) { toast('No broken crawlers to heal.'); return; }
+  toast(`⚡ Healing ${brokens.length} crawlers...`);
+  brokens.forEach((c, i) => setTimeout(() => healCrawler(c.id), i * 1000));
+}
+
+function filterCrawlers() {
+  searchTerm = document.getElementById('search-input').value;
+  renderSidebar();
+}
+
+function setFilter(f) {
+  filterStatus = f;
+  document.querySelectorAll('.chip').forEach(el => {
+    const isActive = el.dataset.filter === f;
+    el.classList.toggle('active', isActive);
+    if (isActive) {
+      el.style.background = 'var(--bg3)';
+      el.style.borderColor = 'var(--border2)';
+    } else {
+      el.style.background = '';
+      el.style.borderColor = 'transparent';
+    }
+  });
+  renderSidebar();
+}
+
+function clearLog() {
+  healLog = [];
+  renderHealLog();
+  toast('Log cleared');
+}
+
+function addLog(crawlerId, type, success, fixedCount, msg) {
+  healLog.push({ crawlerId, type, success, fixedCount, msg, time: new Date().toISOString() });
+}
+
+function switchView(v) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const idx = ['garage','health','quality','fleet','log','ai'].indexOf(v);
+  document.querySelectorAll('.tab')[idx]?.classList.add('active');
+
+  document.getElementById('view-garage').style.display  = v==='garage'  ? 'flex'  : 'none';
+  document.getElementById('view-health').style.display  = v==='health'  ? 'block' : 'none';
+  document.getElementById('view-quality').style.display = v==='quality' ? 'block' : 'none';
+  document.getElementById('view-fleet').style.display   = v==='fleet'   ? 'block' : 'none';
+  document.getElementById('view-log').style.display     = v==='log'     ? 'block' : 'none';
+  document.getElementById('view-ai').style.display      = v==='ai'      ? 'flex'  : 'none';
+
+  if (v==='fleet')   renderFleetGrid();
+  if (v==='log')     renderHealLog();
+  if (v==='health')  renderHealthList();
+  if (v==='quality') renderDataQuality();
+}
+
+// ════════════════════════════════════════════════════════════
+// AI COPILOT (simulated responses)
+// ════════════════════════════════════════════════════════════
+const AI_RESPONSES = {
+  'broken': () => {
+    const brokens = CRAWLERS.filter(c => ['broken','blocked'].includes(crawlerState[c.id].status));
+    return `🔍 Currently ${brokens.length} crawlers need attention:\n\n${brokens.map(c => `• **${c.name}** (${c.domain})\n  Status: ${crawlerState[c.id].status.toUpperCase()} — ${c.note||'Selector failure'}`).join('\n\n')}\n\nRecommendation: Run AI Heal on all broken crawlers. Motor Talk DE and TFF Forum likely need custom bypass strategies.`;
+  },
+  'fleet': () => {
+    const counts = {};
+    CRAWLERS.forEach(c => { const s=crawlerState[c.id].status; counts[s]=(counts[s]||0)+1; });
+    const totalPosts = CRAWLERS.reduce((s,c) => s+(crawlerState[c.id].posts||0), 0);
+    return `📡 Fleet Health Summary:\n\n✅ Healthy: ${counts.healthy||0} crawlers\n❌ Broken: ${counts.broken||0} crawlers\n⚠ Blocked: ${counts.blocked||0} crawlers\n⚡ Healing: ${counts.healing||0} crawlers\n⏳ Pending: ${counts.pending||0} crawlers\n\nTotal posts collected: ${(totalPosts/1000).toFixed(0)}k\nAnti-bot required: ${CRAWLERS.filter(c=>c.antiBot).length} crawlers\n\nTop collectors: Tesla Motors Club (87k), PistonHeads (67k), Automobile Propre (28k)`;
+  },
+  'cloudflare': () => `🛡 PistonHeads uses Akamai Bot Manager, not Cloudflare — the approach differs:\n\n**Recommended strategy:**\n1. Use curl_cffi with browser TLS fingerprinting (JA3/JA4)\n2. Rotate residential proxies (Bright Data or Oxylabs)\n3. Add randomized delays: 2–5s between requests\n4. Set Playwright headless=False for JS-heavy pages\n5. Use session cookies from a real browser login\n\n\`\`\`python\nfrom curl_cffi import requests\nsession = requests.Session(impersonate="chrome120")\nresp = session.get("https://www.pistonheads.com/...", proxies=PROXY)\n\`\`\`\n\nAlternatively, consider ScrapingBee or Scraping Robot as a managed solution.`,
+  'high-priority': () => {
+    const high = CRAWLERS.filter(c => c.priority==='High' && ['broken','blocked'].includes(crawlerState[c.id].status));
+    return `🚨 High-priority crawlers with issues:\n\n${high.map(c => `• **${c.name}** — ${crawlerState[c.id].status.toUpperCase()}\n  ${c.note||'Needs attention'}`).join('\n\n') || 'No high-priority crawlers are currently broken. ✅'}\n\nHigh-priority sites by post volume:\n• Tesla Motors Club: 87k posts\n• PistonHeads: 67k posts (blocked)\n• Autopareri: 31k posts`;
+  },
+  'selector': () => `🔧 Common selector failure patterns:\n\n1. **XenForo class renames** — Most common. CSS class hashes change on updates.\n   Fix: Use structural XPath instead: \`//article[contains(@class,"message")]//div[1]\`\n\n2. **Pagination structure** — \`pageNav-jump--next\` renamed to \`pageNav-next\`.\n   Fix: Use \`//a[@rel="next"]\` as fallback.\n\n3. **Author extraction** — Profile markup varies by theme version.\n   Fix: Try multiple selectors with CSS fallback chains.\n\nAuto-healer approach:\n• AI analyses live HTML and generates new XPaths\n• Confidence threshold >85% required before auto-apply\n• Human review flagged for <70% confidence matches`,
+  'xenforo': () => `🔧 Recommended XenForo selectors (works for most versions):\n\n\`\`\`xpath\n# Post author\n//div[contains(@class,"message-userDetails")]//span[@itemprop="name"]\n\n# Post content\n//article[contains(@class,"message-body")]//div[contains(@class,"bbWrapper")]\n\n# Post date\n//time[contains(@class,"u-dt")]/@datetime\n\n# Thread title\n//h1[contains(@class,"p-title-value")] | //h1[contains(@class,"pageTitle")]\n\n# Pagination next\n//a[contains(@class,"pageNav-jump--next")]/@href\n//a[@rel="next"]/@href  # fallback\n\`\`\`\n\nThese cover XenForo 2.x. For v1.x forums, use \`//div[@class="messageUserBlock"]\` for author.`
+};
+
+function aiAsk(q) {
+  document.getElementById('ai-input-box').value = q;
+  aiSend();
+}
+
+function aiSend() {
+  const input = document.getElementById('ai-input-box');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  const msgs = document.getElementById('ai-messages');
+  msgs.innerHTML += `<div class="ai-msg user">${escHtml(q)}</div>`;
+
+  const typing = document.createElement('div');
+  typing.className = 'ai-msg bot';
+  typing.innerHTML = '<span class="spinner" style="color:var(--muted)">⟳</span> Analysing fleet data...';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  setTimeout(() => {
+    let resp = 'I can help with that! Ask me about specific crawlers, selectors, anti-bot techniques, or fleet health.';
+    const ql = q.toLowerCase();
+    if (ql.includes('broken')||ql.includes('down')||ql.includes('fail')) resp = AI_RESPONSES.broken();
+    else if (ql.includes('fleet')||ql.includes('summary')||ql.includes('overview')) resp = AI_RESPONSES.fleet();
+    else if (ql.includes('cloudflare')||ql.includes('pistonhead')||ql.includes('bypass')||ql.includes('antibot')) resp = AI_RESPONSES.cloudflare();
+    else if (ql.includes('high')||ql.includes('priority')) resp = AI_RESPONSES['high-priority']();
+    else if (ql.includes('selector')||ql.includes('failure')||ql.includes('common')) resp = AI_RESPONSES.selector();
+    else if (ql.includes('xenforo')||ql.includes('xpath')) resp = AI_RESPONSES.xenforo();
+
+    typing.innerHTML = resp.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/```([\w]*)\n([\s\S]*?)```/g,'<pre style="background:var(--bg);padding:8px;border-radius:4px;border:1px solid var(--border);margin:4px 0;font-size:9px;overflow-x:auto">$2</pre>').replace(/\n/g,'<br>');
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1500);
+}
+
+// ════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════
+function timeAgo(ts) {
+  if (!ts) return 'never';
+  const m = Math.floor((Date.now() - new Date(ts).getTime()) / 60000);
+  if (m < 1) return 'now';
+  if (m < 60) return m + 'm ago';
+  if (m < 1440) return Math.floor(m/60) + 'h ago';
+  return Math.floor(m/1440) + 'd ago';
+}
+
+function randomClass() {
+  const words = ['content','wrapper','body','block','text','inner','container','message','post'];
+  return words[Math.floor(Math.random()*words.length)] + '--' + Math.random().toString(36).slice(2,6);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-GB');
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+renderStats();
+renderSidebar();
+updateDateLabel();
+updateClock();
+setInterval(updateClock, 1000);
+
+// simulate a healing event on TFF Forum after 3s (for demo)
+setTimeout(() => {
+  const tff = crawlerState['tff-forum'];
+  tff.selectors[1].ok = false;
+  tff.selectors[3].ok = false;
+}, 100);
+
+// add some initial fake log entries
+setTimeout(() => {
+  addLog('ford-owners-club', 'run', true, 0, 'Weekly crawl completed. 143 new posts collected.');
+  addLog('speakev', 'heal', true, 2, 'AI healed 2 selectors — Cloudflare JS challenge detected and bypassed.');
+  addLog('motor-talk-de', 'diagnose', false, 0, 'Pagination loop detected — spider enters infinite redirect on page 47.');
+  addLog('pistonheads', 'escalate', false, 0, 'Akamai bot protection blocking all requests. Escalated to team.');
+  addLog('ford-forum-de', 'run', true, 0, 'Weekly crawl completed. 89 new posts collected.');
+  renderHealLog();
+}, 200);
+</script>
+</body>
+</html>
