@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ford LENS — Auto-Healer Proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05080f;--bg2:#080d18;--panel:#0e1525;--border:#1a2540;--blue:#3b82f6;--text:#c8d5ef;--muted:#4a5a7a;--green:#22c55e;--orange:#f97316;--red:#ef4444;--purple:#a78bfa;--teal:#2dd4bf;--yellow:#fbbf24;--mono:"JetBrains Mono",monospace;--ui:"Barlow",sans-serif;--cond:"Barlow Condensed",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px;line-height:1.7}
+body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px)}
+.page{max-width:900px;margin:0 auto;padding:48px 32px}
+.cover{padding:52px 0 44px;border-bottom:1px solid var(--border);margin-bottom:52px}
+.ford-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.ford-oval{width:48px;height:22px;background:#1e3a8a;border:1.5px solid #3b82f6;border-radius:50%/45%;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:800;font-size:12px;color:#93c5fd;letter-spacing:1px;text-shadow:0 0 8px #3b82f6}
+.ford-lens{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase}
+h1{font-family:var(--cond);font-size:38px;font-weight:800;letter-spacing:.5px;line-height:1.1;margin-bottom:10px}
+h1 span{color:var(--blue)}.tagline{font-size:15px;color:var(--muted);max-width:580px;line-height:1.6;margin-bottom:20px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--muted);font-family:var(--mono)}
+.meta span{background:var(--panel);border:1px solid var(--border);padding:3px 10px;border-radius:4px}
+.section{margin-bottom:56px}h2{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.5px;margin-bottom:4px;color:var(--text)}
+.intro{color:var(--muted);font-size:13px;margin-bottom:24px;line-height:1.6;border-left:2px solid var(--border);padding-left:14px;max-width:680px}
+hr.div{border:none;border-top:1px solid var(--border);margin:48px 0}
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:36px}
+.pc{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 16px;border-top:3px solid var(--border)}
+.pc.p1{border-top-color:var(--blue)}.pc.p2{border-top-color:var(--green)}.pc.p3{border-top-color:var(--purple)}.pc.p4{border-top-color:var(--teal)}
+.pc-lbl{font-size:8px;font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
+.pc-title{font-family:var(--cond);font-size:14px;font-weight:700;margin-bottom:4px}
+.pc.p1 .pc-title{color:var(--blue)}.pc.p2 .pc-title{color:var(--green)}.pc.p3 .pc-title{color:var(--purple)}.pc.p4 .pc-title{color:var(--teal)}
+.pc-desc{font-size:11px;color:var(--muted);line-height:1.5}.pc-time{margin-top:6px;font-family:var(--mono);font-size:8px;color:var(--muted);opacity:.5}
+.diagram{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px 20px;margin-bottom:28px;overflow-x:auto}
+.diag-title{font-family:var(--cond);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.diag-title::before{content:"";display:inline-block;width:3px;height:12px;background:var(--blue);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+table th{text-align:left;padding:8px 14px;font-family:var(--cond);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--panel)}
+table td{padding:8px 14px;border-bottom:1px solid rgba(26,37,64,.4);font-family:var(--mono);font-size:11px;vertical-align:middle}
+table tr:last-child td{border:none}table td.label{color:var(--text);font-weight:600;font-family:var(--ui);font-size:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.card h4{font-family:var(--cond);font-size:13px;font-weight:700;margin-bottom:10px}
+.card ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:5px}
+.card ul li{font-size:12px;color:var(--muted);padding-left:14px;position:relative;line-height:1.4}
+.card ul li::before{content:"·";position:absolute;left:0;color:var(--blue)}
+.cost-box{border-radius:10px;padding:20px 24px;text-align:center}
+.cost-now{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2)}
+.cost-new{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2)}
+.cost-save{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2)}
+.cost-label{font-size:10px;font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:6px}
+.cost-val{font-family:var(--mono);font-size:32px;font-weight:700;line-height:1}
+.cost-sub{font-size:11px;color:var(--muted);margin-top:5px;font-family:var(--mono)}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:28px}
+.footer{padding:20px 0;border-top:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:var(--mono);margin-top:8px}
+
+/* ── Pill nav ─────────────────────────── */
+.pill-nav{position:sticky;top:0;z-index:100;background:rgba(5,8,15,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;gap:10px;max-width:100%}
+.pill-nav-inner{max-width:900px;margin:0 auto;width:100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-family:var(--cond);font-weight:700;font-size:12px;padding:7px 18px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.pill:hover{color:var(--text);border-color:var(--muted)}
+.pill.pa.active{background:rgba(239,68,68,.15);border-color:#ef4444;color:#f87171}
+.pill.pb.active{background:rgba(34,197,94,.12);border-color:#22c55e;color:#22c55e}
+.pill.pc.active{background:rgba(59,130,246,.12);border-color:#3b82f6;color:#3b82f6}
+.pill-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.pa .pill-dot{background:#ef4444}.pb .pill-dot{background:#22c55e}.pc .pill-dot{background:#3b82f6}
+.opt-tag{font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:8px}
+.tag-a{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.tag-b{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+/* ── Compare grid ──────────────────────── */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cmp-col-a{border-left:3px solid #ef4444;padding-left:16px}
+.cmp-col-b{border-left:3px solid #22c55e;padding-left:16px}
+.cmp-col-a .diag-title::before{background:#ef4444}
+.cmp-col-b .diag-title::before{background:#22c55e}
+@media(max-width:700px){.cmp-grid{grid-template-columns:1fr}}
+
+.pill-nav{position:sticky;top:0;z-index:100;background:rgba(5,8,15,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 32px}
+.pill-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{font-family:var(--cond);font-weight:700;font-size:12px;padding:7px 20px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.pill:hover{color:var(--text);border-color:var(--muted)}
+.pill.pa.active{background:rgba(239,68,68,.15);border-color:#ef4444;color:#f87171}
+.pill.pb.active{background:rgba(34,197,94,.12);border-color:#22c55e;color:#22c55e}
+.pill.pc.active{background:rgba(59,130,246,.12);border-color:#3b82f6;color:#3b82f6}
+.pill-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.pa .pill-dot{background:#ef4444}.pb .pill-dot{background:#22c55e}.pc .pill-dot{background:#3b82f6}
+.opt-tag{font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:8px}
+.tag-a{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.tag-b{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.cmp-col-a{border-left:3px solid #ef4444;padding-left:16px}
+.cmp-col-b{border-left:3px solid #22c55e;padding-left:16px}
+.cmp-col-a .diag-title::before{background:#ef4444}
+.cmp-col-b .diag-title::before{background:#22c55e}
+@media(max-width:700px){.cmp-grid{grid-template-columns:1fr}}
+</style></head><body>
+<div class="pill-nav"><div class="pill-nav-inner">
+  <span style="font-family:var(--cond);font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap">View as:</span>
+  <button class="pill pa" id="pill-a" onclick="switchView('a')"><span class="pill-dot"></span>Option A &nbsp;&mdash;&nbsp; Always-On ECS &nbsp;<span style="font-size:9px;opacity:.6">~£86/mo</span></button>
+  <button class="pill pb" id="pill-b" onclick="switchView('b')"><span class="pill-dot"></span>Option B &nbsp;&mdash;&nbsp; Lambda + API Gateway &nbsp;<span style="font-size:9px;opacity:.6">~£42/mo</span></button>
+  <button class="pill pc" id="pill-both" onclick="switchView('both')"><span class="pill-dot"></span>Compare Both</button>
+</div></div>
+<div class="page">
+<div class="cover">
+  <div class="ford-logo"><div class="ford-oval">FORD</div><div class="ford-lens">LENS</div>
+    <span style="font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--panel);border:1px solid var(--border);padding:2px 8px;border-radius:3px">AUTO-HEALER PROPOSAL</span>
+  </div>
+  <h1>Self-Healing<br><span>Crawler Pipeline</span></h1>
+  <p class="tagline">A proposal to extend the Ford LENS scraping infrastructure with an AI-powered monitoring dashboard and autonomous repair system — so broken spiders diagnose and fix themselves without manual intervention.</p>
+  <div class="meta"><span>M+C Saatchi Fluency</span><span>Prepared by Asad Ikram</span><span>April 2026</span></div>
+</div>
+<div id="view-a" style="display:none"><span class="opt-tag tag-a">Option A — Always-On ECS</span>
+<p style="font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6">Django REST API and MCP Healer run as permanent ECS Fargate services behind a load balancer. Always responsive with no cold starts. Suited for teams that need real-time heal progress or higher dashboard traffic.</p>
+<div class="section">
+  <h2>What We're Building</h2>
+  <p class="intro">44 Scrapy spiders run every Monday. When a spider fails — due to anti-bot blocks, site structure changes, or code exceptions — it currently requires manual investigation. This proposal adds a live monitoring dashboard and an AI auto-healer that diagnoses and fixes failures automatically.</p>
+  <div class="phases">
+    <div class="pc p1"><div class="pc-lbl">Phase 1</div><div class="pc-title">Foundation</div><div class="pc-desc">Backend, PostgreSQL models, all 44 crawlers seeded with XPath selectors.</div><div class="pc-time">Weeks 1–2</div></div>
+    <div class="pc p2"><div class="pc-lbl">Phase 2</div><div class="pc-title">Live Dashboard</div><div class="pc-desc">Frontend wired to real API. Run and Heal buttons trigger actual AWS tasks.</div><div class="pc-time">Week 2–3</div></div>
+    <div class="pc p3"><div class="pc-lbl">Phase 3</div><div class="pc-title">Auto-Healer</div><div class="pc-desc">Claude classifies failures, fixes selectors, bypasses anti-bot, commits code.</div><div class="pc-time">Weeks 3–4</div></div>
+    <div class="pc p4"><div class="pc-lbl">Phase 4</div><div class="pc-title">Full Autonomy</div><div class="pc-desc">Zero-touch pipeline. Spider fails → Claude fixes → redeploys → reruns.</div><div class="pc-time">Week 4+</div></div>
+  </div>
+</div><hr class="div">
+<div class="section">
+  <h2>Architecture</h2>
+  <p class="intro">The existing pipeline — EventBridge, ECS spider tasks, S3 — is untouched. The diagrams show how the dashboard reads live data (Phase 1–2) and how spider failures trigger automatic healing (Phase 3–4).</p>
+  <div class="diagram"><div class="diag-title">Phase 1–2 &nbsp;— &nbsp;Dashboard Data Flow</div><svg width="100%" viewBox="0 0 840 130" role="img"><title>Phase 1-2 Option A</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><rect x="10" y="14" width="120" height="58" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="70" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Browser</text><text x="70" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Chrome / Firefox</text><text x="70" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Opens dashboard</text><line x1="130" y1="43" x2="150" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="140" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">HTTP GET</text><rect x="152" y="14" width="145" height="58" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="224" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Load Balancer</text><text x="224" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ALB · port 443</text><text x="224" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">routes traffic</text><text x="224" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on · ~£16/mo</text><line x1="297" y1="43" x2="317" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><rect x="319" y="14" width="165" height="58" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="401" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Django API</text><text x="401" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">/crawlers/ /heal-log/</text><text x="401" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">REST API · Gunicorn</text><text x="401" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on · ~£14/mo</text><line x1="484" y1="43" x2="504" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="494" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">SQL query</text><rect x="506" y="14" width="186" height="58" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="599" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">Aurora Serverless v2</text><text x="599" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Crawlers · SpiderRuns</text><text x="599" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HealAttempts · DQ</text><text x="599" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£30/mo · scales to zero</text><path d="M692 43 L720 43 L720 96 L70 96 L70 90" fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mar)"/><text x="395" y="108" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">&#x21B5; crawler health · run history · heal log · data quality metrics</text></svg></div>
+  <div class="diagram"><div class="diag-title">Phase 3–4 &nbsp;— &nbsp;Failure Detection &amp; Auto-Heal</div><svg width="100%" viewBox="0 0 840 340" role="img"><title>Phase 3-4 Option A</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text x="10" y="12" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">MONDAY PIPELINE</text><rect x="10" y="16" width="120" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="70" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">EventBridge</text><text x="70" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Monday 6am UTC</text><text x="70" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">cron · 44 tasks</text><line x1="130" y1="43" x2="150" y2="43" stroke="#1a56db" stroke-width="1.5" marker-end="url(#mar)"/><rect x="152" y="16" width="135" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="219" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Spider Task</text><text x="219" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl {name}</text><text x="219" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">curl_cffi · scrapling</text><line x1="287" y1="43" x2="307" y2="43" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#mar)"/><text x="297" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">fails</text><rect x="309" y="16" width="145" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1"/><text x="381" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">pipelines.py</text><text x="381" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">spider_closed()</text><text x="381" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">0 items or exception</text><line x1="454" y1="43" x2="474" y2="43" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/><text x="464" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">POST</text><rect x="476" y="16" width="175" height="54" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="563" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Django API</text><text x="563" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text><text x="563" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">creates HealAttempt · DB</text><text x="563" y="60" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on</text><line x1="563" y1="70" x2="563" y2="96" stroke="#ef4444" stroke-width="1.5" marker-end="url(#mar)"/><text x="571" y="86" font-family="'JetBrains Mono',monospace" font-size="7" fill="#ef4444">trigger heal</text><text x="10" y="96" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">AI HEAL</text><rect x="476" y="98" width="175" height="54" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="563" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS MCP Healer</text><text x="563" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">FastAPI · Claude loop</text><text x="563" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on</text><text x="563" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£14/mo</text><line x1="476" y1="125" x2="456" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><text x="466" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#a78bfa">invoke</text><rect x="300" y="98" width="154" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="377" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Classify</text><text x="377" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti_bot / structure</text><text x="377" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">exception / zero_items</text><line x1="300" y1="125" x2="280" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><rect x="130" y="98" width="148" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="204" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Fix</text><text x="204" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new XPath selectors</text><text x="204" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">bypass strategy</text><text x="204" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">code patch</text><line x1="130" y1="125" x2="110" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><rect x="10" y="98" width="98" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="59" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Commit</text><text x="59" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">push to main</text><text x="59" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">fix + tests</text><line x1="59" y1="152" x2="59" y2="178" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="10" y="178" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">DEPLOY &amp; RERUN</text><rect x="10" y="180" width="155" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="87" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">GitHub Actions</text><text x="87" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">deploy.yml triggers</text><text x="87" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">builds new ECR image</text><line x1="165" y1="207" x2="185" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="175" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">push image</text><rect x="187" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="259" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Amazon ECR</text><text x="259" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image tagged</text><text x="259" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ready to deploy</text><line x1="332" y1="207" x2="352" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="342" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">run task</text><rect x="354" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="426" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Fargate Task</text><text x="426" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image pulled</text><text x="426" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl reruns</text><line x1="499" y1="207" x2="519" y2="207" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#mar)"/><rect x="521" y="180" width="140" height="54" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="591" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">&#x2713; Data Collected</text><text x="591" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">S3 + Aurora updated</text><text x="591" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard turns green</text><text x="591" y="224" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">heal log updated</text><rect x="10" y="248" width="820" height="42" rx="6" fill="#0a0f1a" stroke="#1a2540" stroke-width="1"/><text x="22" y="264" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="10" fill="#4a5a7a">Key difference:</text><text x="22" y="280" font-family="'JetBrains Mono',monospace" font-size="9" fill="#ef4444">ECS Django API + ECS MCP Healer run 24/7 &#x2192; £28/mo regardless of spider failures</text></svg></div>
+</div>
+<hr class="div">
+<div class="section">
+  <h2>Auto-Heal Flow</h2>
+  <p class="intro">When a spider closes with zero items or an unhandled exception, the healing pipeline fires automatically. The cycle from failure detection to a fixed, re-running spider requires no human involvement in either deployment option.</p>
+  <div class="diagram">
+    <div class="diag-title">End-to-End — Spider Failure to Resolution</div>
+    <svg width="100%" viewBox="0 0 840 110" role="img"><title>Auto-heal end-to-end flow</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="10" y="28" width="115" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1"/>
+      <text x="67" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#f97316">Spider Fails</text>
+      <text x="67" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">0 items scraped</text>
+      <text x="67" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">or exception raised</text>
+      <line x1="125" y1="55" x2="143" y2="55" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="145" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1" stroke-opacity=".6"/>
+      <text x="205" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Notify API</text>
+      <text x="205" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">pipelines.py</text>
+      <text x="205" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text>
+      <line x1="265" y1="55" x2="283" y2="55" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="285" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/>
+      <text x="345" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Classify</text>
+      <text x="345" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti_bot / structure</text>
+      <text x="345" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">exception / zero_items</text>
+      <line x1="405" y1="55" x2="423" y2="55" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="425" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/>
+      <text x="485" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Fix &amp; Commit</text>
+      <text x="485" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new selectors · bypass</text>
+      <text x="485" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">code patch · push main</text>
+      <line x1="545" y1="55" x2="563" y2="55" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="565" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/>
+      <text x="625" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Deploy</text>
+      <text x="625" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">GH Actions builds</text>
+      <text x="625" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new ECR image</text>
+      <line x1="685" y1="55" x2="703" y2="55" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="705" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1.5"/>
+      <text x="765" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#2dd4bf">&#x2713; Healthy</text>
+      <text x="765" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">data collected</text>
+      <text x="765" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard green</text>
+    </svg>
+  </div>
+  <div class="two-col">
+    <div class="card"><h4 style="color:#a78bfa">What Claude fixes automatically</h4><ul>
+      <li>Structure changes — fetches live HTML, generates new XPath selectors for author, content, date, pagination</li>
+      <li>Anti-bot blocks — tries curl_cffi, scrapling, playwright, proxy rotation in sequence until one works</li>
+      <li>Code exceptions — reads spider source from GitHub, identifies root cause, patches the broken section</li>
+    </ul></div>
+    <div class="card"><h4 style="color:#22c55e">What stays exactly the same</h4><ul>
+      <li>All 44 spiders run unchanged every Monday via EventBridge</li>
+      <li>Same ECR image, same ECS Fargate task definitions, same S3 output format</li>
+      <li>Slack alerts continue to fire for failures Claude cannot resolve automatically</li>
+    </ul></div>
+  </div>
+</div><hr class="div">
+
+<hr class="div">
+<div class="section">
+  <h2>Claude MCP Tool Suite</h2>
+  <p class="intro">Claude runs in an agentic loop — it reads context, decides which tool to call next, calls it, reads the result, and continues until the spider is fixed or it cannot resolve the issue. Below are all 9 tools available to Claude, grouped by category. Claude decides which to call based on the failure type it classified.</p>
+
+  <!-- Tool call decision flow -->
+  <div class="diagram" style="margin-bottom:20px">
+    <div class="diag-title">When Claude Calls Which Tools</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:14px 16px">
+        <div style="font-family:var(--cond);font-size:11px;font-weight:700;color:#f87171;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Anti-Bot Detected</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted)">
+          <div><span style="color:#a78bfa">1.</span> classify_failure()</div>
+          <div><span style="color:#a78bfa">2.</span> try_all_strategies()</div>
+          <div><span style="color:#a78bfa">3.</span> get_spider_code()</div>
+          <div><span style="color:#a78bfa">4.</span> commit_spider_fix()</div>
+          <div><span style="color:#a78bfa">5.</span> trigger_ecs_run()</div>
+          <div><span style="color:#a78bfa">6.</span> update_heal_status()</div>
+        </div>
+      </div>
+      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:14px 16px">
+        <div style="font-family:var(--cond);font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Structure Changed</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted)">
+          <div><span style="color:#a78bfa">1.</span> classify_failure()</div>
+          <div><span style="color:#a78bfa">2.</span> fetch_page_html()</div>
+          <div><span style="color:#a78bfa">3.</span> get_spider_code()</div>
+          <div><span style="color:#a78bfa">4.</span> commit_spider_fix()</div>
+          <div><span style="color:#a78bfa">5.</span> trigger_ecs_run()</div>
+          <div><span style="color:#a78bfa">6.</span> update_heal_status()</div>
+        </div>
+      </div>
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:8px;padding:14px 16px">
+        <div style="font-family:var(--cond);font-size:11px;font-weight:700;color:#c8d5ef;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Code Exception</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted)">
+          <div><span style="color:#a78bfa">1.</span> classify_failure()</div>
+          <div><span style="color:#a78bfa">2.</span> get_spider_code()</div>
+          <div><span style="color:#a78bfa">3.</span> test_url_strategy()</div>
+          <div><span style="color:#a78bfa">4.</span> commit_spider_fix()</div>
+          <div><span style="color:#a78bfa">5.</span> trigger_ecs_run()</div>
+          <div><span style="color:#a78bfa">6.</span> update_heal_status()</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tool table -->
+  <div class="diagram">
+    <div class="diag-title">All 9 MCP Tools — Endpoints, Parameters &amp; Purpose</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Tool</th>
+          <th>Parameters</th>
+          <th>What It Does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- DIAGNOSTIC -->
+        <tr>
+          <td rowspan="5" style="color:#a78bfa;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px;white-space:nowrap">Diagnostic</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">classify_failure()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">error_log, items_scraped, status_code</td>
+          <td style="font-size:12px;color:var(--muted)">Reads the spider error log and item count. Returns failure_type: <span style="color:#f87171">anti_bot</span> / <span style="color:#fbbf24">structure_change</span> / <span style="color:#c8d5ef">exception</span> / <span style="color:#4a5a7a">zero_items</span> with a confidence score. Always the first tool called.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">test_url_strategy()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url, strategy</td>
+          <td style="font-size:12px;color:var(--muted)">Tests whether a URL is accessible using a specific strategy: <span style="color:#c8d5ef">curl_cffi</span>, <span style="color:#c8d5ef">scrapling</span>, <span style="color:#c8d5ef">playwright</span>, or <span style="color:#c8d5ef">requests</span>. Returns accessible: true/false + block_type (cloudflare / akamai / captcha / 403 etc).</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">try_all_strategies()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url</td>
+          <td style="font-size:12px;color:var(--muted)">Runs all four strategies in sequence (curl_cffi → scrapling → playwright → requests) and returns which ones succeed. Used when the best bypass approach is unknown. Stops at first success.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">fetch_page_html()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url, strategy</td>
+          <td style="font-size:12px;color:var(--muted)">Fetches the live HTML of a forum page (capped at 50k chars for context window). Claude then inspects the structure to identify new XPath selectors for post_author, post_content, post_date, thread_title, and next_page.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">update_heal_status()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">heal_id, status, message, strategy_used, commit_sha</td>
+          <td style="font-size:12px;color:var(--muted)">PATCHes the HealAttempt record in Aurora. Called throughout the loop so the dashboard shows live progress. Final call sets status to <span style="color:#22c55e">success</span>, <span style="color:#f87171">failed</span>, or <span style="color:#fbbf24">partial</span>.</td>
+        </tr>
+        <!-- GITHUB -->
+        <tr>
+          <td rowspan="2" style="color:#3b82f6;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px;white-space:nowrap">GitHub</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#3b82f6;white-space:nowrap">get_spider_code()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name</td>
+          <td style="font-size:12px;color:var(--muted)">Fetches the full Python source of the spider from GitHub via the Contents API. Claude reads this to understand the current selector logic, middleware used, and where the failure likely occurred before writing a fix.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#3b82f6;white-space:nowrap">commit_spider_fix()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name, new_code, commit_message</td>
+          <td style="font-size:12px;color:var(--muted)">Commits the complete fixed spider file to the main branch via the GitHub API. This automatically triggers <span style="color:#c8d5ef">deploy.yml</span> which rebuilds the ECR image. Claude always commits the full file, not a partial diff.</td>
+        </tr>
+        <!-- ECS -->
+        <tr>
+          <td rowspan="2" style="color:#22c55e;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px;white-space:nowrap">ECS</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#22c55e;white-space:nowrap">trigger_ecs_run()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name</td>
+          <td style="font-size:12px;color:var(--muted)">Starts a new ECS Fargate task for the named spider using the scrapy-cluster and scrapy-task definition. Passes spider_name as a CMD override so the same shared ECR image runs any spider. Returns the task ARN.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#22c55e;white-space:nowrap">poll_task_status()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">task_arn, timeout_seconds</td>
+          <td style="font-size:12px;color:var(--muted)">Polls the ECS DescribeTasks API every 30s until the task reaches STOPPED state. Returns <span style="color:#22c55e">SUCCESS</span>, <span style="color:#f87171">FAILED</span>, or <span style="color:#fbbf24">TIMEOUT</span> with the container exit code and stop reason.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loop config -->
+  <div class="two-col">
+    <div class="card">
+      <h4 style="color:#a78bfa">Loop configuration</h4>
+      <ul>
+        <li>Maximum 20 tool calls per heal session — prevents runaway API spend</li>
+        <li>Model: Claude Sonnet (claude-sonnet-4-5) — handles all tool tasks well</li>
+        <li>Each heal session runs in a background task — dashboard polls for progress</li>
+        <li>If Claude reaches the limit without fixing: status → <span style="color:#f87171;font-family:var(--mono);font-size:11px">failed</span>, Slack alert fires</li>
+        <li>Max 3 heal attempts per spider per week — hard cap on Claude API cost</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:#3b82f6">What Claude never does automatically</h4>
+      <ul>
+        <li>Create a brand new spider for a domain that wasn't previously covered</li>
+        <li>Handle a site that has added a login wall or requires credentials</li>
+        <li>Fix a spider where the forum engine has completely changed (e.g. phpBB → Discourse)</li>
+        <li>Retry if the target domain is fully offline (HTTP 503 / DNS failure)</li>
+        <li>In all these cases: status → <span style="color:#fbbf24;font-family:var(--mono);font-size:11px">failed</span>, Slack alert, manual review needed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <h2>Cost</h2>
+  <p class="intro">The table below compares the current infrastructure cost against what it becomes after this build. The biggest saving comes from migrating ford-scraping RDS to Aurora Serverless v2 — it currently runs 24/7 on an over-provisioned instance at near-zero utilisation.</p>
+  <div class="three-col">
+    <div class="cost-box cost-now"><div class="cost-label">Current monthly cost</div><div class="cost-val" style="color:#ef4444">~£200</div><div class="cost-sub">ford-scraping RDS driving most of this</div></div>
+    <div class="cost-box" style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15)"><div class="cost-label">After this build</div><div class="cost-val" style="color:#f87171">~£86</div><div class="cost-sub">Aurora + new services</div></div>
+    <div class="cost-box cost-save"><div class="cost-label">Monthly saving</div><div class="cost-val" style="color:#3b82f6">~£114</div><div class="cost-sub">~£1,368 per year</div></div>
+  </div>
+  <div class="diagram">
+    <div class="diag-title">Current vs Proposed — Line by Line</div>
+    <table>
+      <thead><tr><th>Service</th><th>Current</th><th>After This Build</th></tr></thead>
+      <tbody><tr><td class="label">ford-scraping RDS</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£165/mo (db.m5.2xlarge)</td><td style="color:#2dd4bf;font-family:var(--mono);font-size:11px">~£30/mo (Aurora Serverless v2)</td></tr><tr><td class="label">ECS spider tasks (Mon only)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo — unchanged</td></tr><tr><td class="label">Dashboard API (ECS + ALB)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">~£28/mo (ECS service + ALB)</td></tr><tr><td class="label">MCP Healer server (ECS)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">~£14/mo (ECS service)</td></tr><tr><td class="label">Claude Sonnet API</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#fbbf24;font-family:var(--mono);font-size:11px">~£7/mo (~20 heals)</td></tr><tr><td class="label">S3 + EventBridge + Athena</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo — unchanged</td></tr><tr><td class="label">CloudWatch + backups + misc</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£30/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td></tr>
+        <tr style="background:rgba(59,130,246,.05)"><td class="label" style="font-size:13px">Total</td><td style="color:#ef4444;font-weight:700;font-size:13px;font-family:var(--mono)">~£200/mo</td><td style="color:#f87171;font-weight:700;font-size:13px;font-family:var(--mono)">~£86/mo</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="two-col">
+    <div class="card"><h4 style="color:#2dd4bf">Why Aurora Serverless v2</h4><ul>
+      <li>ford-scraping currently runs 24/7 at under 2% CPU — paying for capacity idle 6 days/week</li>
+      <li>Aurora scales to 0.5 ACU (~£0.04/hr) when no connections exist</li>
+      <li>Scales up automatically in seconds when Monday pipeline starts</li>
+      <li>Same PostgreSQL interface — zero code changes required</li>
+    </ul></div>
+    <div class="card"><h4 style="color:#fbbf24">Claude API cost</h4><ul>
+      <li>Charged only when a spider actually fails and the healer is invoked</li>
+      <li>~£0.35 per heal attempt using Claude Sonnet model</li>
+      <li>Weeks with no failures: Claude API cost is £0</li>
+      <li>Hard cap of 3 attempts per spider per week prevents runaway cost</li>
+    </ul></div>
+  </div>
+</div>
+<div class="footer"><span>Ford LENS &mdash; Auto-Healer Proposal &middot; M+C Saatchi Fluency</span><span>Prepared by Asad Ikram &middot; April 2026</span></div></div>
+<div id="view-b" style="display:none"><span class="opt-tag tag-b">Option B — Lambda + API Gateway</span>
+<p style="font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6">Dashboard served from GitHub Pages. API calls hit Lambda functions that spin up on demand (~1s). The healer runs as a GitHub Actions workflow — no server is provisioned until a spider actually fails.</p>
+<div class="section">
+  <h2>What We're Building</h2>
+  <p class="intro">44 Scrapy spiders run every Monday. When a spider fails — due to anti-bot blocks, site structure changes, or code exceptions — it currently requires manual investigation. This proposal adds a live monitoring dashboard and an AI auto-healer that diagnoses and fixes failures automatically.</p>
+  <div class="phases">
+    <div class="pc p1"><div class="pc-lbl">Phase 1</div><div class="pc-title">Foundation</div><div class="pc-desc">Backend, PostgreSQL models, all 44 crawlers seeded with XPath selectors.</div><div class="pc-time">Weeks 1–2</div></div>
+    <div class="pc p2"><div class="pc-lbl">Phase 2</div><div class="pc-title">Live Dashboard</div><div class="pc-desc">Frontend wired to real API. Run and Heal buttons trigger actual AWS tasks.</div><div class="pc-time">Week 2–3</div></div>
+    <div class="pc p3"><div class="pc-lbl">Phase 3</div><div class="pc-title">Auto-Healer</div><div class="pc-desc">Claude classifies failures, fixes selectors, bypasses anti-bot, commits code.</div><div class="pc-time">Weeks 3–4</div></div>
+    <div class="pc p4"><div class="pc-lbl">Phase 4</div><div class="pc-title">Full Autonomy</div><div class="pc-desc">Zero-touch pipeline. Spider fails → Claude fixes → redeploys → reruns.</div><div class="pc-time">Week 4+</div></div>
+  </div>
+</div><hr class="div">
+<div class="section">
+  <h2>Architecture</h2>
+  <p class="intro">The existing pipeline — EventBridge, ECS spider tasks, S3 — is untouched. The diagrams show how the dashboard reads live data (Phase 1–2) and how spider failures trigger automatic healing (Phase 3–4).</p>
+  <div class="diagram"><div class="diag-title">Phase 1–2 &nbsp;— &nbsp;Dashboard Data Flow</div><svg width="100%" viewBox="0 0 840 130" role="img"><title>Phase 1-2 Option B</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><rect x="10" y="14" width="140" height="58" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="80" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Browser</text><text x="80" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">GitHub Pages</text><text x="80" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Static HTML · free</text><line x1="150" y1="43" x2="170" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="160" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">HTTP GET</text><rect x="172" y="14" width="145" height="58" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="244" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">API Gateway</text><text x="244" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HTTPS endpoint</text><text x="244" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">routes to Lambda</text><text x="244" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£0/mo on-demand</text><line x1="317" y1="43" x2="337" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="327" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">invoke</text><rect x="339" y="14" width="155" height="58" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="416" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">Lambda Function</text><text x="416" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Python handler</text><text x="416" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">cold start ~1s</text><text x="416" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">£0 idle · pay per call</text><line x1="494" y1="43" x2="514" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="504" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">SQL query</text><rect x="516" y="14" width="186" height="58" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="609" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">Aurora Serverless v2</text><text x="609" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Crawlers · SpiderRuns</text><text x="609" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HealAttempts · DQ</text><text x="609" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£30/mo · scales to zero</text><path d="M702 43 L730 43 L730 96 L70 96 L70 90" fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mar)"/><text x="400" y="108" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">&#x21B5; crawler health · run history · heal log · data quality metrics</text></svg></div>
+  <div class="diagram"><div class="diag-title">Phase 3–4 &nbsp;— &nbsp;Failure Detection &amp; Auto-Heal</div><svg width="100%" viewBox="0 0 840 340" role="img"><title>Phase 3-4 Option B</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text x="10" y="12" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">MONDAY PIPELINE</text><rect x="10" y="16" width="120" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="70" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">EventBridge</text><text x="70" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Monday 6am UTC</text><text x="70" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">cron · 44 tasks</text><line x1="130" y1="43" x2="150" y2="43" stroke="#1a56db" stroke-width="1.5" marker-end="url(#mar)"/><rect x="152" y="16" width="135" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="219" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Spider Task</text><text x="219" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl {name}</text><text x="219" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">curl_cffi · scrapling</text><line x1="287" y1="43" x2="307" y2="43" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#mar)"/><text x="297" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">fails</text><rect x="309" y="16" width="145" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1"/><text x="381" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">pipelines.py</text><text x="381" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">spider_closed()</text><text x="381" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">0 items or exception</text><line x1="454" y1="43" x2="474" y2="43" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/><text x="464" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">POST</text><rect x="476" y="16" width="175" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="563" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">API Gateway → Lambda</text><text x="563" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text><text x="563" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">creates HealAttempt · DB</text><text x="563" y="60" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">on-demand · £0 idle</text><line x1="563" y1="70" x2="563" y2="96" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="571" y="86" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">trigger heal</text><text x="10" y="96" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">AI HEAL</text><rect x="476" y="98" width="175" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="563" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">GitHub Actions</text><text x="563" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">auto_heal.yml</text><text x="563" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">workflow_dispatch</text><text x="563" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">runs heal.py · free</text><line x1="476" y1="125" x2="456" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><text x="466" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#a78bfa">invoke</text><rect x="300" y="98" width="154" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="377" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Classify</text><text x="377" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti_bot / structure</text><text x="377" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">exception / zero_items</text><line x1="300" y1="125" x2="280" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><rect x="130" y="98" width="148" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="204" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Fix</text><text x="204" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new XPath selectors</text><text x="204" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">bypass strategy</text><text x="204" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">code patch</text><line x1="130" y1="125" x2="110" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><rect x="10" y="98" width="98" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="59" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Commit</text><text x="59" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">push to main</text><text x="59" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">fix + tests</text><line x1="59" y1="152" x2="59" y2="178" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="10" y="178" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">DEPLOY &amp; RERUN</text><rect x="10" y="180" width="155" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="87" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">GitHub Actions</text><text x="87" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">deploy.yml triggers</text><text x="87" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">builds new ECR image</text><line x1="165" y1="207" x2="185" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="175" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">push image</text><rect x="187" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="259" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Amazon ECR</text><text x="259" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image tagged</text><text x="259" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ready to deploy</text><line x1="332" y1="207" x2="352" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="342" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">run task</text><rect x="354" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="426" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Fargate Task</text><text x="426" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image pulled</text><text x="426" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl reruns</text><line x1="499" y1="207" x2="519" y2="207" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#mar)"/><rect x="521" y="180" width="140" height="54" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="591" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">&#x2713; Data Collected</text><text x="591" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">S3 + Aurora updated</text><text x="591" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard turns green</text><text x="591" y="224" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">heal log updated</text><rect x="10" y="248" width="820" height="42" rx="6" fill="#0a0f1a" stroke="#1a2540" stroke-width="1"/><text x="22" y="264" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="10" fill="#4a5a7a">Key difference:</text><text x="22" y="280" font-family="'JetBrains Mono',monospace" font-size="9" fill="#22c55e">Lambda + GitHub Actions cost £0 at idle &#x2192; healing charges apply only when a spider actually fails</text></svg></div>
+</div>
+<hr class="div">
+<div class="section">
+  <h2>Auto-Heal Flow</h2>
+  <p class="intro">When a spider closes with zero items or an unhandled exception, the healing pipeline fires automatically. The cycle from failure detection to a fixed, re-running spider requires no human involvement in either deployment option.</p>
+  <div class="diagram">
+    <div class="diag-title">End-to-End — Spider Failure to Resolution</div>
+    <svg width="100%" viewBox="0 0 840 110" role="img"><title>Auto-heal end-to-end flow</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <rect x="10" y="28" width="115" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1"/>
+      <text x="67" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#f97316">Spider Fails</text>
+      <text x="67" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">0 items scraped</text>
+      <text x="67" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">or exception raised</text>
+      <line x1="125" y1="55" x2="143" y2="55" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="145" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1" stroke-opacity=".6"/>
+      <text x="205" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Notify API</text>
+      <text x="205" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">pipelines.py</text>
+      <text x="205" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text>
+      <line x1="265" y1="55" x2="283" y2="55" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="285" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/>
+      <text x="345" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Classify</text>
+      <text x="345" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti_bot / structure</text>
+      <text x="345" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">exception / zero_items</text>
+      <line x1="405" y1="55" x2="423" y2="55" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="425" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/>
+      <text x="485" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Fix &amp; Commit</text>
+      <text x="485" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new selectors · bypass</text>
+      <text x="485" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">code patch · push main</text>
+      <line x1="545" y1="55" x2="563" y2="55" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="565" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/>
+      <text x="625" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Deploy</text>
+      <text x="625" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">GH Actions builds</text>
+      <text x="625" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new ECR image</text>
+      <line x1="685" y1="55" x2="703" y2="55" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#mar)"/>
+      <rect x="705" y="28" width="120" height="54" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1.5"/>
+      <text x="765" y="48" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#2dd4bf">&#x2713; Healthy</text>
+      <text x="765" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">data collected</text>
+      <text x="765" y="73" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard green</text>
+    </svg>
+  </div>
+  <div class="two-col">
+    <div class="card"><h4 style="color:#a78bfa">What Claude fixes automatically</h4><ul>
+      <li>Structure changes — fetches live HTML, generates new XPath selectors for author, content, date, pagination</li>
+      <li>Anti-bot blocks — tries curl_cffi, scrapling, playwright, proxy rotation in sequence until one works</li>
+      <li>Code exceptions — reads spider source from GitHub, identifies root cause, patches the broken section</li>
+    </ul></div>
+    <div class="card"><h4 style="color:#22c55e">What stays exactly the same</h4><ul>
+      <li>All 44 spiders run unchanged every Monday via EventBridge</li>
+      <li>Same ECR image, same ECS Fargate task definitions, same S3 output format</li>
+      <li>Slack alerts continue to fire for failures Claude cannot resolve automatically</li>
+    </ul></div>
+  </div>
+</div><hr class="div">
+
+<hr class="div">
+<div class="section">
+  <h2>Claude MCP Tool Suite</h2>
+  <p class="intro">Claude runs in an agentic loop — it reads context, decides which tool to call next, calls it, reads the result, and continues until the spider is fixed or it cannot resolve the issue. Below are all 9 tools available to Claude, grouped by category. Claude decides which to call based on the failure type it classified.</p>
+
+  <!-- Tool call decision flow -->
+  <div class="diagram" style="margin-bottom:20px">
+    <div class="diag-title">When Claude Calls Which Tools</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:14px 16px">
+        <div style="font-family:var(--cond);font-size:11px;font-weight:700;color:#f87171;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Anti-Bot Detected</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted)">
+          <div><span style="color:#a78bfa">1.</span> classify_failure()</div>
+          <div><span style="color:#a78bfa">2.</span> try_all_strategies()</div>
+          <div><span style="color:#a78bfa">3.</span> get_spider_code()</div>
+          <div><span style="color:#a78bfa">4.</span> commit_spider_fix()</div>
+          <div><span style="color:#a78bfa">5.</span> trigger_ecs_run()</div>
+          <div><span style="color:#a78bfa">6.</span> update_heal_status()</div>
+        </div>
+      </div>
+      <div style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:14px 16px">
+        <div style="font-family:var(--cond);font-size:11px;font-weight:700;color:#fbbf24;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Structure Changed</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted)">
+          <div><span style="color:#a78bfa">1.</span> classify_failure()</div>
+          <div><span style="color:#a78bfa">2.</span> fetch_page_html()</div>
+          <div><span style="color:#a78bfa">3.</span> get_spider_code()</div>
+          <div><span style="color:#a78bfa">4.</span> commit_spider_fix()</div>
+          <div><span style="color:#a78bfa">5.</span> trigger_ecs_run()</div>
+          <div><span style="color:#a78bfa">6.</span> update_heal_status()</div>
+        </div>
+      </div>
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:8px;padding:14px 16px">
+        <div style="font-family:var(--cond);font-size:11px;font-weight:700;color:#c8d5ef;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Code Exception</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-family:var(--mono);color:var(--muted)">
+          <div><span style="color:#a78bfa">1.</span> classify_failure()</div>
+          <div><span style="color:#a78bfa">2.</span> get_spider_code()</div>
+          <div><span style="color:#a78bfa">3.</span> test_url_strategy()</div>
+          <div><span style="color:#a78bfa">4.</span> commit_spider_fix()</div>
+          <div><span style="color:#a78bfa">5.</span> trigger_ecs_run()</div>
+          <div><span style="color:#a78bfa">6.</span> update_heal_status()</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tool table -->
+  <div class="diagram">
+    <div class="diag-title">All 9 MCP Tools — Endpoints, Parameters &amp; Purpose</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Tool</th>
+          <th>Parameters</th>
+          <th>What It Does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- DIAGNOSTIC -->
+        <tr>
+          <td rowspan="5" style="color:#a78bfa;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px;white-space:nowrap">Diagnostic</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">classify_failure()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">error_log, items_scraped, status_code</td>
+          <td style="font-size:12px;color:var(--muted)">Reads the spider error log and item count. Returns failure_type: <span style="color:#f87171">anti_bot</span> / <span style="color:#fbbf24">structure_change</span> / <span style="color:#c8d5ef">exception</span> / <span style="color:#4a5a7a">zero_items</span> with a confidence score. Always the first tool called.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">test_url_strategy()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url, strategy</td>
+          <td style="font-size:12px;color:var(--muted)">Tests whether a URL is accessible using a specific strategy: <span style="color:#c8d5ef">curl_cffi</span>, <span style="color:#c8d5ef">scrapling</span>, <span style="color:#c8d5ef">playwright</span>, or <span style="color:#c8d5ef">requests</span>. Returns accessible: true/false + block_type (cloudflare / akamai / captcha / 403 etc).</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">try_all_strategies()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url</td>
+          <td style="font-size:12px;color:var(--muted)">Runs all four strategies in sequence (curl_cffi → scrapling → playwright → requests) and returns which ones succeed. Used when the best bypass approach is unknown. Stops at first success.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">fetch_page_html()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url, strategy</td>
+          <td style="font-size:12px;color:var(--muted)">Fetches the live HTML of a forum page (capped at 50k chars for context window). Claude then inspects the structure to identify new XPath selectors for post_author, post_content, post_date, thread_title, and next_page.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa;white-space:nowrap">update_heal_status()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">heal_id, status, message, strategy_used, commit_sha</td>
+          <td style="font-size:12px;color:var(--muted)">PATCHes the HealAttempt record in Aurora. Called throughout the loop so the dashboard shows live progress. Final call sets status to <span style="color:#22c55e">success</span>, <span style="color:#f87171">failed</span>, or <span style="color:#fbbf24">partial</span>.</td>
+        </tr>
+        <!-- GITHUB -->
+        <tr>
+          <td rowspan="2" style="color:#3b82f6;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px;white-space:nowrap">GitHub</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#3b82f6;white-space:nowrap">get_spider_code()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name</td>
+          <td style="font-size:12px;color:var(--muted)">Fetches the full Python source of the spider from GitHub via the Contents API. Claude reads this to understand the current selector logic, middleware used, and where the failure likely occurred before writing a fix.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#3b82f6;white-space:nowrap">commit_spider_fix()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name, new_code, commit_message</td>
+          <td style="font-size:12px;color:var(--muted)">Commits the complete fixed spider file to the main branch via the GitHub API. This automatically triggers <span style="color:#c8d5ef">deploy.yml</span> which rebuilds the ECR image. Claude always commits the full file, not a partial diff.</td>
+        </tr>
+        <!-- ECS -->
+        <tr>
+          <td rowspan="2" style="color:#22c55e;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px;white-space:nowrap">ECS</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#22c55e;white-space:nowrap">trigger_ecs_run()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name</td>
+          <td style="font-size:12px;color:var(--muted)">Starts a new ECS Fargate task for the named spider using the scrapy-cluster and scrapy-task definition. Passes spider_name as a CMD override so the same shared ECR image runs any spider. Returns the task ARN.</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:10px;color:#22c55e;white-space:nowrap">poll_task_status()</td>
+          <td style="font-family:var(--mono);font-size:10px;color:var(--muted)">task_arn, timeout_seconds</td>
+          <td style="font-size:12px;color:var(--muted)">Polls the ECS DescribeTasks API every 30s until the task reaches STOPPED state. Returns <span style="color:#22c55e">SUCCESS</span>, <span style="color:#f87171">FAILED</span>, or <span style="color:#fbbf24">TIMEOUT</span> with the container exit code and stop reason.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loop config -->
+  <div class="two-col">
+    <div class="card">
+      <h4 style="color:#a78bfa">Loop configuration</h4>
+      <ul>
+        <li>Maximum 20 tool calls per heal session — prevents runaway API spend</li>
+        <li>Model: Claude Sonnet (claude-sonnet-4-5) — handles all tool tasks well</li>
+        <li>Each heal session runs in a background task — dashboard polls for progress</li>
+        <li>If Claude reaches the limit without fixing: status → <span style="color:#f87171;font-family:var(--mono);font-size:11px">failed</span>, Slack alert fires</li>
+        <li>Max 3 heal attempts per spider per week — hard cap on Claude API cost</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4 style="color:#3b82f6">What Claude never does automatically</h4>
+      <ul>
+        <li>Create a brand new spider for a domain that wasn't previously covered</li>
+        <li>Handle a site that has added a login wall or requires credentials</li>
+        <li>Fix a spider where the forum engine has completely changed (e.g. phpBB → Discourse)</li>
+        <li>Retry if the target domain is fully offline (HTTP 503 / DNS failure)</li>
+        <li>In all these cases: status → <span style="color:#fbbf24;font-family:var(--mono);font-size:11px">failed</span>, Slack alert, manual review needed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="section">
+  <h2>Cost</h2>
+  <p class="intro">The table below compares the current infrastructure cost against what it becomes after this build. The biggest saving comes from migrating ford-scraping RDS to Aurora Serverless v2 — it currently runs 24/7 on an over-provisioned instance at near-zero utilisation.</p>
+  <div class="three-col">
+    <div class="cost-box cost-now"><div class="cost-label">Current monthly cost</div><div class="cost-val" style="color:#ef4444">~£200</div><div class="cost-sub">ford-scraping RDS driving most of this</div></div>
+    <div class="cost-box" style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15)"><div class="cost-label">After this build</div><div class="cost-val" style="color:#22c55e">~£42</div><div class="cost-sub">Aurora + new services</div></div>
+    <div class="cost-box cost-save"><div class="cost-label">Monthly saving</div><div class="cost-val" style="color:#3b82f6">~£158</div><div class="cost-sub">~£1,896 per year</div></div>
+  </div>
+  <div class="diagram">
+    <div class="diag-title">Current vs Proposed — Line by Line</div>
+    <table>
+      <thead><tr><th>Service</th><th>Current</th><th>After This Build</th></tr></thead>
+      <tbody><tr><td class="label">ford-scraping RDS</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£165/mo (db.m5.2xlarge)</td><td style="color:#2dd4bf;font-family:var(--mono);font-size:11px">~£30/mo (Aurora Serverless v2)</td></tr><tr><td class="label">ECS spider tasks (Mon only)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo — unchanged</td></tr><tr><td class="label">Dashboard (GitHub Pages)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">£0 (free static hosting)</td></tr><tr><td class="label">API layer (Lambda + Gateway)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">~£0 (free tier)</td></tr><tr><td class="label">Heal engine (GitHub Actions)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">£0 (free)</td></tr><tr><td class="label">Claude Sonnet API</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#fbbf24;font-family:var(--mono);font-size:11px">~£7/mo (~20 heals)</td></tr><tr><td class="label">S3 + EventBridge + Athena</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo — unchanged</td></tr><tr><td class="label">CloudWatch + backups + misc</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£30/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td></tr>
+        <tr style="background:rgba(59,130,246,.05)"><td class="label" style="font-size:13px">Total</td><td style="color:#ef4444;font-weight:700;font-size:13px;font-family:var(--mono)">~£200/mo</td><td style="color:#22c55e;font-weight:700;font-size:13px;font-family:var(--mono)">~£42/mo</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="two-col">
+    <div class="card"><h4 style="color:#2dd4bf">Why Aurora Serverless v2</h4><ul>
+      <li>ford-scraping currently runs 24/7 at under 2% CPU — paying for capacity idle 6 days/week</li>
+      <li>Aurora scales to 0.5 ACU (~£0.04/hr) when no connections exist</li>
+      <li>Scales up automatically in seconds when Monday pipeline starts</li>
+      <li>Same PostgreSQL interface — zero code changes required</li>
+    </ul></div>
+    <div class="card"><h4 style="color:#fbbf24">Claude API cost</h4><ul>
+      <li>Charged only when a spider actually fails and the healer is invoked</li>
+      <li>~£0.35 per heal attempt using Claude Sonnet model</li>
+      <li>Weeks with no failures: Claude API cost is £0</li>
+      <li>Hard cap of 3 attempts per spider per week prevents runaway cost</li>
+    </ul></div>
+  </div>
+</div>
+<div class="footer"><span>Ford LENS &mdash; Auto-Healer Proposal &middot; M+C Saatchi Fluency</span><span>Prepared by Asad Ikram &middot; April 2026</span></div></div>
+<div id="view-both" style="display:none"><p style="font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;border-left:2px solid var(--border);padding-left:14px">Side-by-side comparison of both options. The existing pipeline, auto-heal logic, and Aurora migration are identical — the only difference is how the dashboard API and heal engine are hosted.</p>
+<div class="section">
+  <h2>Architecture Comparison</h2>
+  <div class="diagram"><div class="diag-title">Layer-by-Layer Difference</div>
+    <table><thead><tr><th>Layer</th><th style="color:#f87171">Option A — Always-On ECS</th><th style="color:#22c55e">Option B — Lambda</th></tr></thead>
+    <tbody>
+    <tr><td class="label">Spiders (existing)</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">ECS Fargate tasks, Monday only</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">ECS Fargate tasks, Monday only</td></tr>
+    <tr><td class="label">Dashboard hosting</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">ECS Fargate service + ALB (24/7)</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">GitHub Pages (free static file)</td></tr>
+    <tr><td class="label">API layer</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">Django REST API on ECS (always-on)</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">Lambda functions (on-demand, ~1s cold start)</td></tr>
+    <tr><td class="label">Heal engine</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">ECS MCP Healer server (always-on)</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">GitHub Actions workflow (free, triggered on failure)</td></tr>
+    <tr><td class="label">Database</td><td style="color:#2dd4bf;font-family:var(--mono);font-size:11px">Aurora Serverless v2</td><td style="color:#2dd4bf;font-family:var(--mono);font-size:11px">Aurora Serverless v2</td></tr>
+    <tr><td class="label">AI model</td><td style="color:#a78bfa;font-family:var(--mono);font-size:11px">Claude Sonnet API</td><td style="color:#a78bfa;font-family:var(--mono);font-size:11px">Claude Sonnet API</td></tr>
+    <tr><td class="label">Idle cost (Mon–Sat)</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">~£28/mo (ECS services + ALB running)</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">£0 (nothing runs when not in use)</td></tr>
+    <tr><td class="label">Response time</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">Instant — services always ready</td><td style="color:#f97316;font-family:var(--mono);font-size:11px">~1–2s cold start on first request</td></tr>
+    </tbody></table>
+  </div>
+  <div class="cmp-grid" style="margin-top:20px">
+    <div class="cmp-col-a">
+      <div class="diag-title">Phase 1–2 — Option A</div>
+      <div class="diagram" style="padding:14px 12px"><svg width="100%" viewBox="0 0 840 130" role="img"><title>Phase 1-2 Option A</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><rect x="10" y="14" width="120" height="58" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="70" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Browser</text><text x="70" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Chrome / Firefox</text><text x="70" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Opens dashboard</text><line x1="130" y1="43" x2="150" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="140" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">HTTP GET</text><rect x="152" y="14" width="145" height="58" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="224" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Load Balancer</text><text x="224" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ALB · port 443</text><text x="224" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">routes traffic</text><text x="224" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on · ~£16/mo</text><line x1="297" y1="43" x2="317" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><rect x="319" y="14" width="165" height="58" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="401" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Django API</text><text x="401" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">/crawlers/ /heal-log/</text><text x="401" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">REST API · Gunicorn</text><text x="401" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on · ~£14/mo</text><line x1="484" y1="43" x2="504" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="494" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">SQL query</text><rect x="506" y="14" width="186" height="58" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="599" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">Aurora Serverless v2</text><text x="599" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Crawlers · SpiderRuns</text><text x="599" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HealAttempts · DQ</text><text x="599" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£30/mo · scales to zero</text><path d="M692 43 L720 43 L720 96 L70 96 L70 90" fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mar)"/><text x="395" y="108" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">&#x21B5; crawler health · run history · heal log · data quality metrics</text></svg></div>
+      <div class="diag-title" style="margin-top:16px">Phase 3–4 — Option A</div>
+      <div class="diagram" style="padding:14px 12px"><svg width="100%" viewBox="0 0 840 340" role="img"><title>Phase 3-4 Option A</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text x="10" y="12" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">MONDAY PIPELINE</text><rect x="10" y="16" width="120" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="70" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">EventBridge</text><text x="70" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Monday 6am UTC</text><text x="70" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">cron · 44 tasks</text><line x1="130" y1="43" x2="150" y2="43" stroke="#1a56db" stroke-width="1.5" marker-end="url(#mar)"/><rect x="152" y="16" width="135" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="219" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Spider Task</text><text x="219" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl {name}</text><text x="219" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">curl_cffi · scrapling</text><line x1="287" y1="43" x2="307" y2="43" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#mar)"/><text x="297" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">fails</text><rect x="309" y="16" width="145" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1"/><text x="381" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">pipelines.py</text><text x="381" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">spider_closed()</text><text x="381" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">0 items or exception</text><line x1="454" y1="43" x2="474" y2="43" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/><text x="464" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">POST</text><rect x="476" y="16" width="175" height="54" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="563" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Django API</text><text x="563" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text><text x="563" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">creates HealAttempt · DB</text><text x="563" y="60" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on</text><line x1="563" y1="70" x2="563" y2="96" stroke="#ef4444" stroke-width="1.5" marker-end="url(#mar)"/><text x="571" y="86" font-family="'JetBrains Mono',monospace" font-size="7" fill="#ef4444">trigger heal</text><text x="10" y="96" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">AI HEAL</text><rect x="476" y="98" width="175" height="54" rx="6" fill="#0c1220" stroke="#ef4444" stroke-width="1"/><text x="563" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS MCP Healer</text><text x="563" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">FastAPI · Claude loop</text><text x="563" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on</text><text x="563" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£14/mo</text><line x1="476" y1="125" x2="456" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><text x="466" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#a78bfa">invoke</text><rect x="300" y="98" width="154" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="377" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Classify</text><text x="377" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti_bot / structure</text><text x="377" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">exception / zero_items</text><line x1="300" y1="125" x2="280" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><rect x="130" y="98" width="148" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="204" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Fix</text><text x="204" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new XPath selectors</text><text x="204" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">bypass strategy</text><text x="204" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">code patch</text><line x1="130" y1="125" x2="110" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><rect x="10" y="98" width="98" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="59" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Commit</text><text x="59" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">push to main</text><text x="59" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">fix + tests</text><line x1="59" y1="152" x2="59" y2="178" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="10" y="178" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">DEPLOY &amp; RERUN</text><rect x="10" y="180" width="155" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="87" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">GitHub Actions</text><text x="87" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">deploy.yml triggers</text><text x="87" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">builds new ECR image</text><line x1="165" y1="207" x2="185" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="175" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">push image</text><rect x="187" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="259" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Amazon ECR</text><text x="259" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image tagged</text><text x="259" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ready to deploy</text><line x1="332" y1="207" x2="352" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="342" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">run task</text><rect x="354" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="426" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Fargate Task</text><text x="426" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image pulled</text><text x="426" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl reruns</text><line x1="499" y1="207" x2="519" y2="207" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#mar)"/><rect x="521" y="180" width="140" height="54" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="591" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">&#x2713; Data Collected</text><text x="591" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">S3 + Aurora updated</text><text x="591" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard turns green</text><text x="591" y="224" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">heal log updated</text><rect x="10" y="248" width="820" height="42" rx="6" fill="#0a0f1a" stroke="#1a2540" stroke-width="1"/><text x="22" y="264" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="10" fill="#4a5a7a">Key difference:</text><text x="22" y="280" font-family="'JetBrains Mono',monospace" font-size="9" fill="#ef4444">ECS Django API + ECS MCP Healer run 24/7 &#x2192; £28/mo regardless of spider failures</text></svg></div>
+    </div>
+    <div class="cmp-col-b">
+      <div class="diag-title">Phase 1–2 — Option B</div>
+      <div class="diagram" style="padding:14px 12px"><svg width="100%" viewBox="0 0 840 130" role="img"><title>Phase 1-2 Option B</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><rect x="10" y="14" width="140" height="58" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="80" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Browser</text><text x="80" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">GitHub Pages</text><text x="80" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Static HTML · free</text><line x1="150" y1="43" x2="170" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="160" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">HTTP GET</text><rect x="172" y="14" width="145" height="58" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="244" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">API Gateway</text><text x="244" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HTTPS endpoint</text><text x="244" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">routes to Lambda</text><text x="244" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£0/mo on-demand</text><line x1="317" y1="43" x2="337" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="327" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">invoke</text><rect x="339" y="14" width="155" height="58" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="416" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">Lambda Function</text><text x="416" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Python handler</text><text x="416" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">cold start ~1s</text><text x="416" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">£0 idle · pay per call</text><line x1="494" y1="43" x2="514" y2="43" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#mar)"/><text x="504" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#3b82f6">SQL query</text><rect x="516" y="14" width="186" height="58" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="609" y="32" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">Aurora Serverless v2</text><text x="609" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Crawlers · SpiderRuns</text><text x="609" y="53" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HealAttempts · DQ</text><text x="609" y="62" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£30/mo · scales to zero</text><path d="M702 43 L730 43 L730 96 L70 96 L70 90" fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mar)"/><text x="400" y="108" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">&#x21B5; crawler health · run history · heal log · data quality metrics</text></svg></div>
+      <div class="diag-title" style="margin-top:16px">Phase 3–4 — Option B</div>
+      <div class="diagram" style="padding:14px 12px"><svg width="100%" viewBox="0 0 840 340" role="img"><title>Phase 3-4 Option B</title><defs><marker id="mar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><text x="10" y="12" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">MONDAY PIPELINE</text><rect x="10" y="16" width="120" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="70" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">EventBridge</text><text x="70" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Monday 6am UTC</text><text x="70" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">cron · 44 tasks</text><line x1="130" y1="43" x2="150" y2="43" stroke="#1a56db" stroke-width="1.5" marker-end="url(#mar)"/><rect x="152" y="16" width="135" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="219" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Spider Task</text><text x="219" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl {name}</text><text x="219" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">curl_cffi · scrapling</text><line x1="287" y1="43" x2="307" y2="43" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#mar)"/><text x="297" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">fails</text><rect x="309" y="16" width="145" height="54" rx="6" fill="#0c1220" stroke="#f97316" stroke-width="1"/><text x="381" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">pipelines.py</text><text x="381" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">spider_closed()</text><text x="381" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">0 items or exception</text><line x1="454" y1="43" x2="474" y2="43" stroke="#f97316" stroke-width="1.5" marker-end="url(#mar)"/><text x="464" y="38" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#f97316">POST</text><rect x="476" y="16" width="175" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="563" y="33" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">API Gateway → Lambda</text><text x="563" y="44" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text><text x="563" y="52" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">creates HealAttempt · DB</text><text x="563" y="60" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">on-demand · £0 idle</text><line x1="563" y1="70" x2="563" y2="96" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="571" y="86" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">trigger heal</text><text x="10" y="96" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">AI HEAL</text><rect x="476" y="98" width="175" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="563" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#22c55e">GitHub Actions</text><text x="563" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">auto_heal.yml</text><text x="563" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">workflow_dispatch</text><text x="563" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">runs heal.py · free</text><line x1="476" y1="125" x2="456" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><text x="466" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#a78bfa">invoke</text><rect x="300" y="98" width="154" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="377" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Classify</text><text x="377" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti_bot / structure</text><text x="377" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">exception / zero_items</text><line x1="300" y1="125" x2="280" y2="125" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#mar)"/><rect x="130" y="98" width="148" height="54" rx="6" fill="#0c1220" stroke="#a78bfa" stroke-width="1"/><text x="204" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#a78bfa">Claude: Fix</text><text x="204" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new XPath selectors</text><text x="204" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">bypass strategy</text><text x="204" y="142" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">code patch</text><line x1="130" y1="125" x2="110" y2="125" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><rect x="10" y="98" width="98" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="59" y="115" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Commit</text><text x="59" y="126" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">push to main</text><text x="59" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">fix + tests</text><line x1="59" y1="152" x2="59" y2="178" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="10" y="178" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="8" fill="#4a5a7a" letter-spacing="1">DEPLOY &amp; RERUN</text><rect x="10" y="180" width="155" height="54" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1"/><text x="87" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">GitHub Actions</text><text x="87" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">deploy.yml triggers</text><text x="87" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">builds new ECR image</text><line x1="165" y1="207" x2="185" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="175" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">push image</text><rect x="187" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="259" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">Amazon ECR</text><text x="259" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image tagged</text><text x="259" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ready to deploy</text><line x1="332" y1="207" x2="352" y2="207" stroke="#22c55e" stroke-width="1.5" marker-end="url(#mar)"/><text x="342" y="202" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" fill="#22c55e">run task</text><rect x="354" y="180" width="145" height="54" rx="6" fill="#0c1220" stroke="#1a2540" stroke-width="1"/><text x="426" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#c8d5ef">ECS Fargate Task</text><text x="426" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">new image pulled</text><text x="426" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scrapy crawl reruns</text><line x1="499" y1="207" x2="519" y2="207" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#mar)"/><rect x="521" y="180" width="140" height="54" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1"/><text x="591" y="197" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#2dd4bf">&#x2713; Data Collected</text><text x="591" y="208" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">S3 + Aurora updated</text><text x="591" y="216" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard turns green</text><text x="591" y="224" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">heal log updated</text><rect x="10" y="248" width="820" height="42" rx="6" fill="#0a0f1a" stroke="#1a2540" stroke-width="1"/><text x="22" y="264" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="10" fill="#4a5a7a">Key difference:</text><text x="22" y="280" font-family="'JetBrains Mono',monospace" font-size="9" fill="#22c55e">Lambda + GitHub Actions cost £0 at idle &#x2192; healing charges apply only when a spider actually fails</text></svg></div>
+    </div>
+  </div>
+</div>
+<hr class="div">
+
+<hr class="div">
+<div class="section">
+  <h2>Claude MCP Tools — Same in Both Options</h2>
+  <p class="intro">Regardless of which deployment option is chosen, Claude has access to the same 9 tools. The tool suite is identical — the only difference is where the agentic loop runs (ECS MCP Healer server in Option A, GitHub Actions workflow in Option B).</p>
+  <div class="diagram">
+    <div class="diag-title">All 9 Tools — Name, Parameters, Purpose</div>
+    <table>
+      <thead><tr><th>Category</th><th>Tool</th><th>Parameters</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="5" style="color:#a78bfa;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px">Diagnostic</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#a78bfa">classify_failure()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">error_log, items_scraped, status_code</td><td style="font-size:12px;color:var(--muted)">Returns failure_type: anti_bot / structure_change / exception / zero_items. Always first call.</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:10px;color:#a78bfa">test_url_strategy()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url, strategy</td><td style="font-size:12px;color:var(--muted)">Tests a URL with a specific bypass: curl_cffi / scrapling / playwright / requests. Returns accessible + block_type.</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:10px;color:#a78bfa">try_all_strategies()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url</td><td style="font-size:12px;color:var(--muted)">Tries all 4 strategies in sequence. Stops at first success. Used when block type is unknown.</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:10px;color:#a78bfa">fetch_page_html()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">url, strategy</td><td style="font-size:12px;color:var(--muted)">Fetches live HTML (50k char cap). Claude inspects to find new XPath selectors for author, content, date, pagination.</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:10px;color:#a78bfa">update_heal_status()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">heal_id, status, message, strategy_used, commit_sha</td><td style="font-size:12px;color:var(--muted)">PATCHes the HealAttempt record in Aurora. Updates dashboard live progress. Final call sets success / failed / partial.</td></tr>
+        <tr><td rowspan="2" style="color:#3b82f6;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px">GitHub</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#3b82f6">get_spider_code()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name</td><td style="font-size:12px;color:var(--muted)">Fetches full spider Python source from GitHub Contents API. Claude reads before writing any fix.</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:10px;color:#3b82f6">commit_spider_fix()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name, new_code, commit_message</td><td style="font-size:12px;color:var(--muted)">Pushes complete fixed file to main branch. Triggers deploy.yml automatically. Always full file, never a partial diff.</td></tr>
+        <tr><td rowspan="2" style="color:#22c55e;font-family:var(--cond);font-weight:700;font-size:12px;vertical-align:top;padding-top:14px">ECS</td>
+          <td style="font-family:var(--mono);font-size:10px;color:#22c55e">trigger_ecs_run()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">spider_name</td><td style="font-size:12px;color:var(--muted)">Starts a new Fargate task on scrapy-cluster with CMD override for the spider name. Returns task ARN.</td></tr>
+        <tr><td style="font-family:var(--mono);font-size:10px;color:#22c55e">poll_task_status()</td><td style="font-family:var(--mono);font-size:10px;color:var(--muted)">task_arn, timeout_seconds</td><td style="font-size:12px;color:var(--muted)">Polls ECS DescribeTasks every 30s until STOPPED. Returns SUCCESS / FAILED / TIMEOUT with exit code and stop reason.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Cost Comparison</h2>
+  <p class="intro">Aurora Serverless v2 migration is the biggest saving in both options — it eliminates the cost of running an over-provisioned database 24/7. The remaining difference is the new hosting approach.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:28px">
+    <div class="cost-box cost-now"><div class="cost-label">Current</div><div class="cost-val" style="color:#ef4444">~£200</div><div class="cost-sub">ford-scraping RDS + ECS + misc</div></div>
+    <div class="cost-box" style="background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.2)"><div class="cost-label">Option A proposed</div><div class="cost-val" style="color:#f87171">~£86</div><div class="cost-sub">saves ~£114/mo · ~£1,368/yr</div></div>
+    <div class="cost-box cost-new"><div class="cost-label">Option B proposed</div><div class="cost-val" style="color:#22c55e">~£42</div><div class="cost-sub">saves ~£158/mo · ~£1,896/yr</div></div>
+  </div>
+  <div class="diagram"><div class="diag-title">Current vs Option A vs Option B — Full Breakdown</div>
+    <table><thead><tr><th>Service</th><th>Current</th><th style="color:#f87171">Option A</th><th style="color:#22c55e">Option B</th></tr></thead>
+    <tbody>
+    <tr><td class="label">ford-scraping RDS</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">~£165/mo (db.m5.2xlarge)</td><td style="color:#2dd4bf;font-family:var(--mono);font-size:11px">~£30/mo (Aurora)</td><td style="color:#2dd4bf;font-family:var(--mono);font-size:11px">~£30/mo (Aurora)</td></tr>
+    <tr><td class="label">ECS spider tasks</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£3/mo</td></tr>
+    <tr><td class="label">Dashboard + API hosting</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">~£28/mo (ECS + ALB)</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">£0 (GH Pages + Lambda)</td></tr>
+    <tr><td class="label">MCP / Heal engine</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#ef4444;font-family:var(--mono);font-size:11px">~£14/mo (ECS service)</td><td style="color:#22c55e;font-family:var(--mono);font-size:11px">£0 (GitHub Actions)</td></tr>
+    <tr><td class="label">Claude Sonnet API</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">— not built</td><td style="color:#fbbf24;font-family:var(--mono);font-size:11px">~£7/mo</td><td style="color:#fbbf24;font-family:var(--mono);font-size:11px">~£7/mo</td></tr>
+    <tr><td class="label">S3 + EventBridge + Athena</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td></tr>
+    <tr><td class="label">CloudWatch + backups + misc</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£30/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td><td style="color:#4a5a7a;font-family:var(--mono);font-size:11px">~£2/mo</td></tr>
+    <tr style="background:rgba(59,130,246,.05)"><td class="label" style="font-size:13px">Total</td><td style="color:#ef4444;font-weight:700;font-size:13px;font-family:var(--mono)">~£200/mo</td><td style="color:#f87171;font-weight:700;font-size:13px;font-family:var(--mono)">~£86/mo</td><td style="color:#22c55e;font-weight:700;font-size:13px;font-family:var(--mono)">~£42/mo</td></tr>
+    </tbody></table>
+  </div>
+</div>
+<div class="footer"><span>Ford LENS &mdash; Auto-Healer Proposal &middot; M+C Saatchi Fluency</span><span>Prepared by Asad Ikram &middot; April 2026</span></div></div>
+</div>
+<script>
+function switchView(v){
+  ['a','b','both'].forEach(function(x){
+    document.getElementById('view-'+x).style.display=(x===v)?'block':'none';
+    document.getElementById('pill-'+x).classList.toggle('active',x===v);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+switchView('b');
+</script>
+</body></html>
