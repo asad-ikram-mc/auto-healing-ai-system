@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ford LENS — Benefits, Issues & Aurora Explained</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05080f;--bg2:#080d18;--panel:#0e1525;--border:#1a2540;--blue:#3b82f6;--text:#c8d5ef;--muted:#4a5a7a;--green:#22c55e;--red:#ef4444;--purple:#a78bfa;--teal:#2dd4bf;--yellow:#fbbf24;--orange:#f97316;--mono:'JetBrains Mono',monospace;--ui:'Barlow',sans-serif;--cond:'Barlow Condensed',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px;line-height:1.7}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px)}
+.page{max-width:880px;margin:0 auto;padding:48px 32px}
+
+/* header */
+.header{padding:44px 0 36px;border-bottom:1px solid var(--border);margin-bottom:48px}
+.tag{font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--panel);border:1px solid var(--border);padding:2px 10px;border-radius:3px;letter-spacing:2px;text-transform:uppercase;display:inline-block;margin-bottom:16px}
+h1{font-family:var(--cond);font-size:34px;font-weight:800;line-height:1.1;margin-bottom:8px}
+h1 span{color:var(--blue)}
+.sub{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* sections */
+.section{margin-bottom:52px}
+h2{font-family:var(--cond);font-size:18px;font-weight:700;letter-spacing:.4px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+h2 .icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+hr{border:none;border-top:1px solid var(--border);margin:44px 0}
+
+/* pros cons grid */
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.pc-grid{grid-template-columns:1fr}}
+.pros{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-top:3px solid #22c55e;border-radius:10px;padding:20px}
+.cons{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-top:3px solid #ef4444;border-radius:10px;padding:20px}
+.pc-title{font-family:var(--cond);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.pros .pc-title{color:#22c55e}
+.cons .pc-title{color:#ef4444}
+.pc-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:10px}
+.pc-list li{font-size:13px;color:var(--text);padding-left:22px;position:relative;line-height:1.5}
+.pc-list li::before{position:absolute;left:0;font-size:13px}
+.pros .pc-list li::before{content:'✓';color:#22c55e}
+.cons .pc-list li::before{content:'✗';color:#ef4444}
+.pc-list li span{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+
+/* issues table */
+.issue-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.issue-header{display:grid;grid-template-columns:auto 1fr;gap:0}
+.issue-tag{background:rgba(249,115,22,.1);border-right:1px solid var(--border);padding:14px 16px;font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);writing-mode:horizontal-tb;display:flex;align-items:center;white-space:nowrap}
+.issue-body{padding:16px 20px}
+.issue-title{font-family:var(--cond);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.issue-raised{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:10px}
+.issue-problem{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.issue-solution{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:6px;padding:12px 14px}
+.issue-solution-label{font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#22c55e;margin-bottom:5px}
+.issue-solution p{font-size:12px;color:var(--text);line-height:1.6}
+
+/* aurora section */
+.aurora-hero{background:linear-gradient(135deg,rgba(45,212,191,.08) 0%,rgba(59,130,246,.06) 100%);border:1px solid rgba(45,212,191,.2);border-radius:12px;padding:28px;margin-bottom:24px}
+.aurora-title{font-family:var(--cond);font-size:22px;font-weight:800;color:var(--teal);margin-bottom:6px}
+.aurora-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.aurora-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:600px){.aurora-steps{grid-template-columns:repeat(2,1fr)}}
+.aurora-step{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center}
+.aurora-step-n{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.aurora-step-title{font-family:var(--cond);font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.aurora-step-desc{font-size:10px;color:var(--muted);line-height:1.4}
+
+.compare-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:600px){.compare-row{grid-template-columns:1fr}}
+.compare-box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px 18px}
+.compare-box.before{border-top:3px solid #ef4444}
+.compare-box.after{border-top:3px solid #2dd4bf}
+.compare-label{font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.compare-box.before .compare-label{color:#ef4444}
+.compare-box.after .compare-label{color:#2dd4bf}
+.compare-box ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
+.compare-box ul li{font-size:12px;color:var(--muted);padding-left:14px;position:relative;line-height:1.4}
+.compare-box ul li::before{content:'·';position:absolute;left:0}
+.compare-box.before ul li::before{color:#ef4444}
+.compare-box.after ul li::before{color:#2dd4bf}
+
+.cost-pills{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.cost-pill{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 20px;text-align:center}
+.cost-pill-val{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1;margin-bottom:3px}
+.cost-pill-lbl{font-size:10px;color:var(--muted);font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em}
+
+.footer{padding:20px 0;border-top:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-family:var(--mono);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="tag">Ford LENS — Pre-Meeting Summary</div>
+  <h1>Benefits, Issues<br><span>&amp; Aurora Explained</span></h1>
+  <p class="sub">A concise reference covering what this system does well, what its limitations are, the concerns raised during review, and how we've addressed each one — plus a plain-English explanation of the Aurora Serverless v2 database migration.</p>
+</div>
+
+<!-- PROS CONS -->
+<div class="section">
+  <h2>
+    <span class="icon" style="background:rgba(59,130,246,.12);color:var(--blue)">±</span>
+    Benefits &amp; Limitations
+  </h2>
+  <div class="pc-grid">
+    <div class="pros">
+      <div class="pc-title">Benefits</div>
+      <ul class="pc-list">
+        <li>Spiders self-heal without anyone being paged
+          <span>Failures are detected, diagnosed, and fixed automatically — before anyone on the team notices</span>
+        </li>
+        <li>Classifier-first approach is clean and predictable
+          <span>Claude identifies the failure type first (anti-bot / structure change / code error) then applies the right fix strategy — no guessing</span>
+        </li>
+        <li>Every fix is a code commit with a PR
+          <span>Full audit trail — engineers can review what Claude changed before it merges to main</span>
+        </li>
+        <li>No new always-on servers needed
+          <span>The healer only spins up when a spider actually fails — zero idle cost between Monday runs</span>
+        </li>
+        <li>Saves ~£155/month vs current infrastructure
+          <span>Mostly driven by the Aurora Serverless v2 migration — database cost drops from ~£165 to ~£30/mo</span>
+        </li>
+        <li>Scales naturally as more spiders are added
+          <span>Adding a new spider requires no changes to the healing system — it picks it up automatically</span>
+        </li>
+      </ul>
+    </div>
+    <div class="cons">
+      <div class="pc-title">Limitations</div>
+      <ul class="pc-list">
+        <li>Claude cannot create brand new spiders
+          <span>If a new forum domain needs to be added, that still requires a human to build the spider from scratch</span>
+        </li>
+        <li>Login walls stop the healer completely
+          <span>If a forum adds authentication, Claude has no way to obtain or use credentials — manual intervention required</span>
+        </li>
+        <li>Full forum engine changes need human review
+          <span>If a site moves from phpBB to a completely different platform, the spider logic needs rethinking beyond selector fixes</span>
+        </li>
+        <li>Sites fully offline cannot be healed
+          <span>If a domain has DNS failure or permanent 503, there is nothing to fix — Slack alert fires and it's flagged for review</span>
+        </li>
+        <li>Claude costs money per heal attempt
+          <span>~£0.35 per attempt using Claude Sonnet — weeks with no failures cost £0, but a bad week with many failures adds up</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ISSUES RAISED -->
+<div class="section">
+  <h2>
+    <span class="icon" style="background:rgba(249,115,22,.12);color:var(--orange)">!</span>
+    Issues Raised &amp; How We've Addressed Them
+  </h2>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <div class="issue-tag">Timing</div>
+      <div class="issue-body">
+        <div class="issue-title">Can the agent fix a spider within 15 minutes?</div>
+        <div class="issue-raised">Raised by Danny — concern about Lambda timing window</div>
+        <div class="issue-problem">With Lambda, the full cycle (cold start → Claude reasoning → fetch page → generate fix → commit → GitHub Actions build → ECR push → ECS rerun) sits at 8–12 minutes in normal cases but can brush 15 minutes if the target forum page is slow or Claude needs multiple bypass attempts. Tight but feasible — however it leaves no margin.</div>
+        <div class="issue-solution">
+          <div class="issue-solution-label">Solution</div>
+          <p>We're going with ECS over Lambda for the healer. Running the MCP Healer as an on-demand Fargate task (not always-on) eliminates the cold start and gives us a reliable ~8 minute cycle. A hard 15-minute timeout is implemented at two levels: the Claude loop has a wall-clock cutoff that stops gracefully and fires a Slack alert; the ECS task definition has a stopTimeout as a hard backstop so nothing ever hangs regardless.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <div class="issue-tag">Repo Safety</div>
+      <div class="issue-body">
+        <div class="issue-title">The agent making changes to the repo — how do we limit what it can touch?</div>
+        <div class="issue-raised">Raised by Danny — concern about agent scope in fluency_scraping repo</div>
+        <div class="issue-problem">If Claude is given a GitHub token with full repo write access, it could theoretically modify pipelines.py, settings.py, workflow files, or any other part of the codebase — not just spiders. A bug in Claude's reasoning or a badly generated fix could break the Monday pipeline for all 44 spiders at once.</div>
+        <div class="issue-solution">
+          <div class="issue-solution-label">Solution — Three-layer isolation</div>
+          <p><strong>1. Dedicated branch:</strong> Claude commits to a branch called <code style="font-family:var(--mono);font-size:11px;background:rgba(59,130,246,.1);padding:1px 5px;border-radius:3px">ford-lens-auto-heal</code> only — never to main directly.</p>
+          <p style="margin-top:6px"><strong>2. Path restriction:</strong> GitHub branch protection rules restrict the token to <code style="font-family:var(--mono);font-size:11px;background:rgba(59,130,246,.1);padding:1px 5px;border-radius:3px">car_forums/spiders/**</code> only. Claude physically cannot write to pipelines.py, settings.py, middlewares.py, or any workflow file.</p>
+          <p style="margin-top:6px"><strong>3. PR before main:</strong> Every fix becomes a pull request. The ECS rerun validates it on the branch image first. Only after a human approves does it merge to main and go into the Monday production run.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <div class="issue-tag">Cost Control</div>
+      <div class="issue-body">
+        <div class="issue-title">What if the healer keeps retrying and running up the Claude API bill?</div>
+        <div class="issue-raised">General concern — uncapped AI API spend</div>
+        <div class="issue-problem">Without a retry cap, a spider that Claude consistently cannot fix (e.g. a site that permanently added a login wall) would keep triggering heal attempts every time it runs on Monday, each one costing ~£0.35 and burning 15 minutes of ECS time.</div>
+        <div class="issue-solution">
+          <div class="issue-solution-label">Solution</div>
+          <p>Hard cap of 3 heal attempts per spider per week. After 3 failed attempts, the spider is marked as <code style="font-family:var(--mono);font-size:11px;background:rgba(239,68,68,.1);padding:1px 5px;border-radius:3px">needs_human_review</code>, a Slack alert fires, and no further Claude API calls are made until an engineer resets it. Maximum weekly Claude spend is bounded regardless of how many spiders break.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <div class="issue-tag">Dashboard</div>
+      <div class="issue-body">
+        <div class="issue-title">Should the dashboard be on GitHub Pages (free) or ECS (always-on)?</div>
+        <div class="issue-raised">Open question — response time vs cost tradeoff</div>
+        <div class="issue-problem">GitHub Pages serves static files for free but the API calls that power the Run and Heal buttons go through Lambda, which has a ~1–2 second cold start on first use. ECS keeps the API always-on and instant but adds ~£28/month in idle server cost.</div>
+        <div class="issue-solution">
+          <div class="issue-solution-label">Pending decision</div>
+          <p>Given the dashboard is used roughly once a week (Monday after the run), the 1–2s cold start on Lambda is acceptable and the £28/month saving is real. Our lean is GitHub Pages + Lambda. If Danny wants instant response for the buttons, we switch to always-on ECS — the rest of the architecture is identical either way.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- HOW CLAUDE FIXES -->
+<div class="section">
+  <h2>
+    <span class="icon" style="background:rgba(167,139,250,.12);color:var(--purple)">AI</span>
+    How Claude Actually Fixes a Broken Spider
+  </h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;border-left:2px solid var(--border);padding-left:14px">Claude doesn't just retry the spider — it reads the live website, understands what changed, writes corrected code, and verifies the fix works before committing anything. Here's the exact sequence for each failure type.</p>
+
+  <!-- Fix flows -->
+  <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
+
+    <!-- Anti-bot -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="background:rgba(239,68,68,.08);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px">
+        <span style="background:rgba(239,68,68,.15);color:#f87171;font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:3px">Anti-Bot Block</span>
+        <span style="font-size:12px;color:var(--muted)">Cloudflare, Akamai, 403, CAPTCHA, rate limiting</span>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">1</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Detect block type</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Reads HTTP status + HTML. Identifies if it's Cloudflare, Akamai, DataDome, captcha, or plain 403</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">2</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Try strategies</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Tests curl_cffi → scrapling → playwright → proxy rotation in sequence. Stops at first success</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">3</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Read spider code</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Fetches current spider from GitHub. Identifies which middleware is in use and what needs to change</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">4</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Rewrite spider</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Switches the downloader middleware class, updates settings flags, adjusts request headers if needed</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">5</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Run test suite</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Runs summary crawler checks. Confirms >0 posts scraped, fields populated. Only commits if tests pass</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Structure change -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="background:rgba(251,191,36,.06);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px">
+        <span style="background:rgba(251,191,36,.15);color:var(--yellow);font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:3px">Structure Change</span>
+        <span style="font-size:12px;color:var(--muted)">Site redesign, new CSS classes, moved HTML elements, pagination changes</span>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px">
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">1</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Fetch live HTML</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Downloads the current page using the working bypass strategy (50k char cap for context window)</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">2</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Analyse structure</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Reads the HTML DOM. Finds where post_author, post_content, post_date, thread_title, and next_page now live</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">3</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Read old selectors</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Fetches spider from GitHub. Compares old XPath selectors against new HTML structure to understand what broke</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">4</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Write new XPaths</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Generates new XPath selectors for all 5 fields. Mentally tests each one against the fetched HTML before writing</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">5</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Rewrite spider</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Replaces old selector strings with new ones. Commits the complete updated spider file</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">6</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Run test suite</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Summary crawler confirms fields are populated and not empty. Only commits if all checks pass</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code exception -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="background:rgba(59,130,246,.06);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px">
+        <span style="background:rgba(59,130,246,.15);color:#60a5fa;font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border-radius:3px">Code Exception</span>
+        <span style="font-size:12px;color:var(--muted)">AttributeError, NoneType, index out of range, unhandled exception in spider logic</span>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">1</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Read traceback</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Reads the full error log and traceback. Identifies exactly which line and method caused the exception</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">2</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Fetch spider</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Gets full source from GitHub. Reads the method that failed alongside the traceback to understand the root cause</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">3</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Confirm site works</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Tests URL accessibility first — rules out anti-bot as the underlying cause before touching code</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">4</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Patch the bug</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Fixes the specific method — adds null guards, fixes selector fallbacks, handles edge cases the original code missed</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--purple);margin-bottom:3px">5</div>
+            <div style="font-size:10px;color:var(--text);font-weight:600;margin-bottom:2px">Run test suite</div>
+            <div style="font-size:9px;color:var(--muted);line-height:1.4">Summary crawler confirms no exceptions raised and output data is valid before the fix is committed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MCP ENDPOINTS -->
+  <h2 style="margin-top:36px;margin-bottom:6px">
+    <span class="icon" style="background:rgba(59,130,246,.12);color:var(--blue)">&lt;/&gt;</span>
+    MCP Endpoints Claude Calls During Each Fix
+  </h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;border-left:2px solid var(--border);padding-left:14px">These are the 9 endpoints we build into the MCP server. Claude decides which to call and in what order depending on the failure type. Each call is a tool Claude uses like a function — it reads the result, reasons about it, and decides what to call next.</p>
+
+  <!-- endpoint reference table -->
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px">
+    <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px">
+      <div style="font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Endpoint</div>
+      <div style="font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">What it does + key parameters</div>
+      <div style="font-family:var(--cond);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">Used when</div>
+    </div>
+
+    <!-- classify_failure -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:600">classify_failure()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Reads the spider error log and item count. Returns failure_type with confidence score.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: error_log, items_scraped, status_code</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: anti_bot | structure_change | exception | zero_items</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Always first — every failure type</div>
+    </div>
+
+    <!-- test_url_strategy -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:600">test_url_strategy()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Tests a single bypass strategy against the URL. Returns whether it's accessible and the block type.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: url, strategy (curl_cffi | scrapling | playwright | requests)</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: accessible:bool, block_type, status_code</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Anti-bot · code exception (to rule out block)</div>
+    </div>
+
+    <!-- try_all_strategies -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:600">try_all_strategies()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Runs all 4 strategies in sequence (curl_cffi → scrapling → playwright → requests). Stops at first success.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: url</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: list of results per strategy, which_worked</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Anti-bot — when block type is unknown</div>
+    </div>
+
+    <!-- fetch_page_html -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:600">fetch_page_html()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Downloads the live HTML of a forum page using the working bypass strategy. Capped at 50k chars so it fits in Claude's context window.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: url, strategy</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: html (50k cap), status_code</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Structure change — Claude reads HTML to find new selectors</div>
+    </div>
+
+    <!-- get_spider_code -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:#60a5fa;font-weight:600">get_spider_code()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Fetches the full Python source of the spider from GitHub via the Contents API. Claude reads this before writing any fix.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: spider_name</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: python source as string, file sha</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">All fix types — always before writing a patch</div>
+    </div>
+
+    <!-- run_summary_crawler -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:#22c55e;font-weight:600">run_summary_crawler()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Runs the spider's companion test script against 1–2 pages. Validates the 7 field checks. Claude reads the result before deciding whether to commit.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: spider_name, code (the patched version to test)</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: passed:bool, failed_checks:list, items_scraped:int</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">All fix types — gate before any commit</div>
+    </div>
+
+    <!-- commit_spider_fix -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:#60a5fa;font-weight:600">commit_spider_fix()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Pushes the complete fixed spider file to the ford-lens-auto-heal branch via GitHub API. Triggers deploy.yml to rebuild ECR image. Always commits the full file, never a diff.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: spider_name, new_code, commit_message</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: commit_sha, branch, pr_url</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Only called after summary crawler passes</div>
+    </div>
+
+    <!-- trigger_ecs_run -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:#22c55e;font-weight:600">trigger_ecs_run()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Starts a new ECS Fargate task on scrapy-cluster using the new ECR image. Passes spider_name as CMD override so the shared image runs any spider.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: spider_name</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: task_arn</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">After commit — validates fix on full run</div>
+    </div>
+
+    <!-- poll_task_status -->
+    <div style="border-bottom:1px solid var(--border);padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:#22c55e;font-weight:600">poll_task_status()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">Polls ECS DescribeTasks every 30s until the task reaches STOPPED state. Confirms whether the full spider run succeeded after the fix was deployed.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: task_arn, timeout_seconds (900 = 15 min)</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: SUCCESS | FAILED | TIMEOUT, exit_code, stop_reason</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">After trigger_ecs_run — waits for result</div>
+    </div>
+
+    <!-- update_heal_status -->
+    <div style="padding:12px 18px;display:grid;grid-template-columns:200px 1fr 160px;gap:16px;align-items:start">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:600">update_heal_status()</div>
+      <div>
+        <div style="font-size:12px;color:var(--text);margin-bottom:3px">PATCHes the HealAttempt record in Aurora. Called throughout the loop so the dashboard shows live progress. Final call sets the outcome.</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">params: heal_id, status (in_progress | success | failed | partial), message, strategy_used, commit_sha</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">returns: ok:bool</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5">Throughout loop + at final outcome</div>
+    </div>
+  </div>
+
+  <!-- call sequence per failure type -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px">
+    <div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:8px;padding:14px 16px">
+      <div style="font-family:var(--cond);font-size:10px;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Anti-Bot — call sequence</div>
+      <div style="display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:10px">
+        <div><span style="color:var(--purple)">1.</span> <span style="color:var(--muted)">classify_failure()</span></div>
+        <div><span style="color:var(--purple)">2.</span> <span style="color:var(--muted)">try_all_strategies()</span></div>
+        <div><span style="color:var(--purple)">3.</span> <span style="color:var(--muted)">get_spider_code()</span></div>
+        <div><span style="color:var(--purple)">4.</span> <span style="color:var(--muted)">update_heal_status() — in_progress</span></div>
+        <div><span style="color:var(--purple)">5.</span> <span style="color:var(--muted)">run_summary_crawler()</span></div>
+        <div><span style="color:var(--green)">6.</span> <span style="color:var(--muted)">commit_spider_fix()</span></div>
+        <div><span style="color:var(--green)">7.</span> <span style="color:var(--muted)">trigger_ecs_run()</span></div>
+        <div><span style="color:var(--green)">8.</span> <span style="color:var(--muted)">poll_task_status()</span></div>
+        <div><span style="color:var(--green)">9.</span> <span style="color:var(--muted)">update_heal_status() — success</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15);border-radius:8px;padding:14px 16px">
+      <div style="font-family:var(--cond);font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Structure Change — call sequence</div>
+      <div style="display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:10px">
+        <div><span style="color:var(--purple)">1.</span> <span style="color:var(--muted)">classify_failure()</span></div>
+        <div><span style="color:var(--purple)">2.</span> <span style="color:var(--muted)">test_url_strategy() — confirm accessible</span></div>
+        <div><span style="color:var(--purple)">3.</span> <span style="color:var(--muted)">fetch_page_html()</span></div>
+        <div><span style="color:var(--purple)">4.</span> <span style="color:var(--muted)">get_spider_code()</span></div>
+        <div><span style="color:var(--purple)">5.</span> <span style="color:var(--muted)">update_heal_status() — in_progress</span></div>
+        <div><span style="color:var(--purple)">6.</span> <span style="color:var(--muted)">run_summary_crawler()</span></div>
+        <div><span style="color:var(--green)">7.</span> <span style="color:var(--muted)">commit_spider_fix()</span></div>
+        <div><span style="color:var(--green)">8.</span> <span style="color:var(--muted)">trigger_ecs_run()</span></div>
+        <div><span style="color:var(--green)">9.</span> <span style="color:var(--muted)">update_heal_status() — success</span></div>
+      </div>
+    </div>
+    <div style="background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.15);border-radius:8px;padding:14px 16px">
+      <div style="font-family:var(--cond);font-size:10px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Code Exception — call sequence</div>
+      <div style="display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:10px">
+        <div><span style="color:var(--purple)">1.</span> <span style="color:var(--muted)">classify_failure()</span></div>
+        <div><span style="color:var(--purple)">2.</span> <span style="color:var(--muted)">test_url_strategy() — rule out block</span></div>
+        <div><span style="color:var(--purple)">3.</span> <span style="color:var(--muted)">get_spider_code()</span></div>
+        <div><span style="color:var(--purple)">4.</span> <span style="color:var(--muted)">update_heal_status() — in_progress</span></div>
+        <div><span style="color:var(--purple)">5.</span> <span style="color:var(--muted)">run_summary_crawler()</span></div>
+        <div><span style="color:var(--green)">6.</span> <span style="color:var(--muted)">commit_spider_fix()</span></div>
+        <div><span style="color:var(--green)">7.</span> <span style="color:var(--muted)">trigger_ecs_run()</span></div>
+        <div><span style="color:var(--green)">8.</span> <span style="color:var(--muted)">poll_task_status()</span></div>
+        <div><span style="color:var(--green)">9.</span> <span style="color:var(--muted)">update_heal_status() — success</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test suite section -->
+  <h2 style="margin-top:36px;margin-bottom:16px">
+    <span class="icon" style="background:rgba(34,197,94,.1);color:var(--green)">✓</span>
+    Summary Crawler Test Suite — How We Know the Fix Worked
+  </h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;border-left:2px solid var(--border);padding-left:14px">Each spider has a lightweight summary crawler — a short test script that scrapes just 1–2 pages and validates the output against a checklist. Claude runs this before committing any fix. If the summary crawler fails, Claude keeps trying. It only commits to the repo when all checks pass.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px">
+      <div style="font-family:var(--cond);font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">What each summary crawler checks</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">Items scraped &gt; 0</span><br><span style="font-size:11px;color:var(--muted)">At least one post returned from the test page. Zero items = fix didn't work.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">post_author is not empty</span><br><span style="font-size:11px;color:var(--muted)">Author field extracted and is a non-empty string. Not None, not whitespace.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">post_content length &gt; 10 chars</span><br><span style="font-size:11px;color:var(--muted)">Content field has real text, not just whitespace or an empty tag.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">post_date is a valid date</span><br><span style="font-size:11px;color:var(--muted)">Date field parses as a real datetime. Not a raw string like "2 hours ago" that wasn't handled.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">thread_title is not empty</span><br><span style="font-size:11px;color:var(--muted)">Thread title extracted correctly from the page.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">next_page link found</span><br><span style="font-size:11px;color:var(--muted)">Pagination working — spider can navigate beyond page 1 without getting stuck.</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span style="color:var(--green);font-size:13px;flex-shrink:0;margin-top:1px">✓</span>
+          <div><span style="font-size:12px;color:var(--text);font-weight:600">No exceptions raised</span><br><span style="font-size:11px;color:var(--muted)">The test run completes cleanly — no AttributeError, NoneType, or unhandled exceptions in the log.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px">
+        <div style="font-family:var(--cond);font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">How it fits into the heal loop</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;font-family:var(--mono)">
+          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--purple)">1.</span><span style="color:var(--muted)">Claude generates a fix</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--purple)">2.</span><span style="color:var(--muted)">Runs summary crawler (1–2 pages only, ~30s)</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--purple)">3.</span><span style="color:var(--muted)">All 7 checks pass → commit to branch</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--red)">✗</span><span style="color:var(--muted)">Any check fails → Claude tries a different approach</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--red)">✗</span><span style="color:var(--muted)">Still failing after 3 attempts → Slack alert, human review</span></div>
+        </div>
+      </div>
+
+      <div style="background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:16px">
+        <div style="font-family:var(--cond);font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">Why this matters</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6">Without the test suite, Claude could commit a fix that appears valid (no syntax errors, no exceptions during import) but produces empty or malformed data silently. The summary crawler is the gate that proves the fix actually extracts real content from the live site before anything is committed or deployed.</p>
+      </div>
+
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px">
+        <div style="font-family:var(--cond);font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px">Summary crawlers are written once per spider</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6">Each of the 44 spiders gets a companion test script during Phase 1. It's ~30 lines of Python — just enough to scrape one thread page and assert the 7 fields. These live in <span style="font-family:var(--mono);font-size:11px;background:rgba(59,130,246,.1);padding:1px 5px;border-radius:3px">car_forums/tests/</span> and run in under a minute. Claude calls them as a tool during healing. They can also be run manually to sanity-check any spider at any time.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- AURORA -->
+<div class="section">
+  <h2>
+    <span class="icon" style="background:rgba(45,212,191,.1);color:var(--teal)">DB</span>
+    Aurora Serverless v2 — What It Is &amp; Why We're Migrating
+  </h2>
+
+  <div class="aurora-hero">
+    <div class="aurora-title">The Simple Explanation</div>
+    <div class="aurora-sub">The current ford-scraping database is like leaving a car engine running 24 hours a day so it's ready when you need it on Monday. Aurora Serverless v2 is the same car but it automatically turns off when parked and starts itself up before you need it — saving fuel the other six days without any change to how you drive it.</div>
+    <div class="aurora-steps">
+      <div class="aurora-step">
+        <div class="aurora-step-n">Mon</div>
+        <div class="aurora-step-title">Pipeline runs</div>
+        <div class="aurora-step-desc">44 spiders write data. Aurora scales up to handle the load in seconds.</div>
+      </div>
+      <div class="aurora-step">
+        <div class="aurora-step-n">Tue</div>
+        <div class="aurora-step-title">Scales down</div>
+        <div class="aurora-step-desc">No connections. Aurora scales to minimum — costs ~£0.04/hr idle.</div>
+      </div>
+      <div class="aurora-step">
+        <div class="aurora-step-n">Wed–Sat</div>
+        <div class="aurora-step-title">Near zero cost</div>
+        <div class="aurora-step-desc">Nothing running. ~6 days × £0.04/hr = ~£5.76 for the idle period.</div>
+      </div>
+      <div class="aurora-step">
+        <div class="aurora-step-n">Next Mon</div>
+        <div class="aurora-step-title">Ready instantly</div>
+        <div class="aurora-step-desc">Scales back up in seconds when the pipeline starts. No downtime.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Before vs After -->
+  <div class="compare-row">
+    <div class="compare-box before">
+      <div class="compare-label">Current — RDS db.m5.2xlarge (always-on)</div>
+      <ul>
+        <li>Runs 24 hours a day, 7 days a week</li>
+        <li>8 vCPU, 32 GB RAM provisioned at all times</li>
+        <li>CPU sitting at under 2% on Tue–Sun</li>
+        <li>0 database connections for 6 out of 7 days</li>
+        <li>Paying for peak capacity even at idle</li>
+        <li>Cost: ~£165/month regardless of usage</li>
+      </ul>
+    </div>
+    <div class="compare-box after">
+      <div class="compare-label">Proposed — Aurora Serverless v2</div>
+      <ul>
+        <li>Scales down to 0.5 ACU when no connections exist</li>
+        <li>Scales up automatically in seconds on Monday</li>
+        <li>Same PostgreSQL — zero code changes to any spider</li>
+        <li>Same connection string format — swap the endpoint only</li>
+        <li>No performance loss on Monday when it counts</li>
+        <li>Cost: ~£30/month (mostly Monday activity)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Migration -->
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:20px">
+    <div style="font-family:var(--cond);font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px">Migration Process — ~2 Hours, Zero Code Changes</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;font-size:11px">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--teal)">1</div>
+        <div style="font-family:var(--cond);font-weight:700;color:var(--text)">Snapshot</div>
+        <div style="color:var(--muted)">Take a snapshot of the current ford-scraping RDS. Full backup, no data loss.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--teal)">2</div>
+        <div style="font-family:var(--cond);font-weight:700;color:var(--text)">Restore</div>
+        <div style="color:var(--muted)">Restore the snapshot as a new Aurora Serverless v2 cluster. All data intact.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--teal)">3</div>
+        <div style="font-family:var(--cond);font-weight:700;color:var(--text)">Swap endpoint</div>
+        <div style="color:var(--muted)">Update the DB_HOST environment variable in ECS. No SQL changes, no code changes.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--teal)">4</div>
+        <div style="font-family:var(--cond);font-weight:700;color:var(--text)">Verify &amp; retire</div>
+        <div style="color:var(--muted)">Run one Monday cycle on Aurora. Confirm all data writing correctly. Decommission old RDS.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost pills -->
+  <div class="cost-pills">
+    <div class="cost-pill">
+      <div class="cost-pill-val" style="color:#ef4444">~£165</div>
+      <div class="cost-pill-lbl">Current RDS / month</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:20px;color:var(--muted)">→</div>
+    <div class="cost-pill">
+      <div class="cost-pill-val" style="color:#2dd4bf">~£30</div>
+      <div class="cost-pill-lbl">Aurora Serverless / month</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:20px;color:var(--muted)">→</div>
+    <div class="cost-pill">
+      <div class="cost-pill-val" style="color:#3b82f6">~£135</div>
+      <div class="cost-pill-lbl">Monthly saving</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:20px;color:var(--muted)">→</div>
+    <div class="cost-pill">
+      <div class="cost-pill-val" style="color:#3b82f6">~£1,620</div>
+      <div class="cost-pill-lbl">Annual saving</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Ford LENS — Pre-Meeting Summary · M+C Saatchi Fluency</span>
+  <span>Asad Ikram · April 2026</span>
+</div>
+
+</div>
+</body>
+</html>
