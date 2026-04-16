@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ford LENS — Build Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05080f;
+  --bg2: #080d18;
+  --panel: #0b1120;
+  --border: #1a2540;
+  --blue: #3b82f6;
+  --blue2: #1d4ed8;
+  --teal: #2dd4bf;
+  --green: #22c55e;
+  --red: #ef4444;
+  --purple: #a78bfa;
+  --yellow: #fbbf24;
+  --orange: #f97316;
+  --text: #c8d5ef;
+  --muted: #4a5a7a;
+  --mono: 'JetBrains Mono', monospace;
+  --cond: 'Barlow Condensed', sans-serif;
+  --body: 'Barlow', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* scan line overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.018) 2px, rgba(0,0,0,.018) 4px);
+}
+
+/* grid bg */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(59,130,246,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── HEADER ─────────────────────────────────────── */
+.header {
+  position: relative;
+  z-index: 10;
+  padding: 56px 40px 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ford-oval {
+  background: transparent;
+  border: 2.5px solid var(--blue);
+  color: var(--blue);
+  font-family: var(--cond);
+  font-weight: 900;
+  font-size: 20px;
+  letter-spacing: 2px;
+  padding: 6px 20px;
+  border-radius: 40px;
+}
+
+.header-title {
+  font-family: var(--cond);
+  font-weight: 800;
+  font-size: 38px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.header-title span { color: var(--blue); }
+
+.header-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.phase-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.phase-pill {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .3px;
+  padding: 8px 22px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.phase-pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.phase-pill:hover { color: var(--text); border-color: var(--muted); }
+
+.phase-pill[data-phase="0"].active { border-color: var(--blue); color: #93c5fd; background: rgba(59,130,246,.1); }
+.phase-pill[data-phase="1"].active { border-color: var(--teal); color: #5eead4; background: rgba(45,212,191,.1); }
+.phase-pill[data-phase="2"].active { border-color: var(--purple); color: #c4b5fd; background: rgba(167,139,250,.1); }
+.phase-pill[data-phase="3"].active { border-color: var(--green); color: #86efac; background: rgba(34,197,94,.1); }
+.phase-pill[data-phase="4"].active { border-color: var(--yellow); color: #fde68a; background: rgba(251,191,36,.1); }
+
+/* ── MAIN LAYOUT ─────────────────────────────────── */
+.main {
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+
+/* ── PHASE OVERVIEW STRIP ────────────────────────── */
+.overview-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 36px 0;
+  background: var(--panel);
+}
+
+.ov-card {
+  padding: 20px 18px;
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .2s;
+  position: relative;
+}
+
+.ov-card:last-child { border-right: none; }
+.ov-card:hover { background: rgba(255,255,255,.02); }
+
+.ov-card.active-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.ov-card[data-phase="0"].active-card::after { background: var(--blue); }
+.ov-card[data-phase="1"].active-card::after { background: var(--teal); }
+.ov-card[data-phase="2"].active-card::after { background: var(--purple); }
+.ov-card[data-phase="3"].active-card::after { background: var(--green); }
+.ov-card[data-phase="4"].active-card::after { background: var(--yellow); }
+
+.ov-number {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.ov-title {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.ov-weeks {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* ── PHASE CONTENT ───────────────────────────────── */
+.phase-view { display: none; }
+.phase-view.active { display: block; }
+
+/* phase hero */
+.phase-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media(max-width: 700px) {
+  .phase-hero { grid-template-columns: 1fr; }
+  .overview-strip { grid-template-columns: 1fr 1fr; }
+  .header { padding: 32px 20px 24px; }
+  .main { padding: 0 20px 60px; }
+}
+
+.phase-intro {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.phase-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  padding: 2px 10px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.phase-h {
+  font-family: var(--cond);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.phase-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.phase-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phase-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.phase-meta-row span:first-child {
+  width: 80px;
+  color: var(--muted);
+  opacity: .6;
+}
+
+.phase-meta-row span:last-child { color: var(--text); }
+
+.deliverables {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.deliverables h3 {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.deliverable-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(26,37,64,.5);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.deliverable-item:last-child { border-bottom: none; }
+
+.d-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.d-file {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── DIAGRAM ─────────────────────────────────────── */
+.diagram-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 32px;
+}
+
+.section-label {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.diagram-svg { width: 100%; overflow: visible; }
+
+/* ── STEPS ───────────────────────────────────────── */
+.steps-section { margin-bottom: 32px; }
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.step-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .15s;
+  cursor: default;
+}
+
+.step-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59,130,246,.3);
+}
+
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+}
+
+.step-number {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: 6px;
+}
+
+.step-title {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.step-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.step-code {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--teal);
+  background: rgba(45,212,191,.06);
+  border: 1px solid rgba(45,212,191,.15);
+  border-radius: 4px;
+  padding: 6px 10px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.step-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.step-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* ── STATUS INDICATOR ────────────────────────────── */
+.status-bar {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 32px;
+  font-family: var(--mono);
+  font-size: 11px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* PHASE COLOURS */
+/* P0 = blue */
+.p0 .phase-badge { background: rgba(59,130,246,.12); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
+.p0 .phase-h span, .p0 .d-dot, .p0 .step-card::before { background: var(--blue); }
+.p0 .step-card:hover { border-color: rgba(59,130,246,.4); }
+
+/* P1 = teal */
+.p1 .phase-badge { background: rgba(45,212,191,.1); color: #5eead4; border: 1px solid rgba(45,212,191,.25); }
+.p1 .phase-h span, .p1 .d-dot, .p1 .step-card::before { background: var(--teal); }
+.p1 .step-card:hover { border-color: rgba(45,212,191,.4); }
+
+/* P2 = purple */
+.p2 .phase-badge { background: rgba(167,139,250,.1); color: #c4b5fd; border: 1px solid rgba(167,139,250,.25); }
+.p2 .phase-h span, .p2 .d-dot, .p2 .step-card::before { background: var(--purple); }
+.p2 .step-card:hover { border-color: rgba(167,139,250,.4); }
+
+/* P3 = green */
+.p3 .phase-badge { background: rgba(34,197,94,.08); color: #86efac; border: 1px solid rgba(34,197,94,.25); }
+.p3 .phase-h span, .p3 .d-dot, .p3 .step-card::before { background: var(--green); }
+.p3 .step-card:hover { border-color: rgba(34,197,94,.4); }
+
+/* P4 = yellow */
+.p4 .phase-badge { background: rgba(251,191,36,.1); color: #fde68a; border: 1px solid rgba(251,191,36,.25); }
+.p4 .phase-h span, .p4 .d-dot, .p4 .step-card::before { background: var(--yellow); }
+.p4 .step-card:hover { border-color: rgba(251,191,36,.4); }
+
+.footer {
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid var(--border);
+  padding: 20px 40px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="logo-block">
+      <div class="ford-oval">FORD</div>
+      <div>
+        <div class="header-title">LENS <span>Build Roadmap</span></div>
+        <div class="header-meta">Claude-Powered Self-Healing Pipeline · M+C Saatchi Fluency</div>
+      </div>
+    </div>
+  </div>
+  <div class="phase-pills">
+    <button class="phase-pill active" data-phase="0" onclick="setPhase(0)">Overview</button>
+    <button class="phase-pill" data-phase="1" onclick="setPhase(1)">Phase 1 · Foundation</button>
+    <button class="phase-pill" data-phase="2" onclick="setPhase(2)">Phase 2 · Dashboard</button>
+    <button class="phase-pill" data-phase="3" onclick="setPhase(3)">Phase 3 · MCP Healer</button>
+    <button class="phase-pill" data-phase="4" onclick="setPhase(4)">Phase 4 · Autonomy</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- OVERVIEW STRIP (always visible) -->
+  <div class="overview-strip">
+    <div class="ov-card active-card" data-phase="0" onclick="setPhase(0)">
+      <div class="ov-number">Overview</div>
+      <div class="ov-title">All Phases</div>
+      <div class="ov-weeks">4 weeks total</div>
+    </div>
+    <div class="ov-card" data-phase="1" onclick="setPhase(1)">
+      <div class="ov-number">Phase 1</div>
+      <div class="ov-title">Foundation</div>
+      <div class="ov-weeks">Weeks 1–2</div>
+    </div>
+    <div class="ov-card" data-phase="2" onclick="setPhase(2)">
+      <div class="ov-number">Phase 2</div>
+      <div class="ov-title">Live Dashboard</div>
+      <div class="ov-weeks">Weeks 2–3</div>
+    </div>
+    <div class="ov-card" data-phase="3" onclick="setPhase(3)">
+      <div class="ov-number">Phase 3</div>
+      <div class="ov-title">MCP Auto-Healer</div>
+      <div class="ov-weeks">Weeks 3–4</div>
+    </div>
+    <div class="ov-card" data-phase="4" onclick="setPhase(4)">
+      <div class="ov-number">Phase 4</div>
+      <div class="ov-title">Full Autonomy</div>
+      <div class="ov-weeks">Week 4+</div>
+    </div>
+  </div>
+
+  <!-- ══════════ PHASE 0: OVERVIEW ══════════ -->
+  <div class="phase-view p0 active" id="phase-0">
+    <div class="status-bar">
+      <div class="status-item"><div class="status-dot" style="background:var(--green)"></div> Phase 1 — In Progress</div>
+      <div class="status-item"><div class="status-dot" style="background:var(--border)"></div> Phase 2 — Pending</div>
+      <div class="status-item"><div class="status-dot" style="background:var(--border)"></div> Phase 3 — Pending</div>
+      <div class="status-item"><div class="status-dot" style="background:var(--border)"></div> Phase 4 — Pending</div>
+      <div class="status-item" style="margin-left:auto;color:var(--blue);font-size:10px;">Option A · Always-On ECS · ~£86/mo</div>
+    </div>
+
+    <!-- Overview diagram -->
+    <div class="diagram-section">
+      <div class="section-label">Complete system architecture</div>
+      <svg class="diagram-svg" viewBox="0 0 1080 520" role="img">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <!-- Row labels -->
+        <text x="10" y="68" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">EXISTING PIPELINE</text>
+        <text x="10" y="198" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">NEW · PHASE 1–2</text>
+        <text x="10" y="328" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">NEW · PHASE 3</text>
+        <text x="10" y="448" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">PHASE 4 · AUTONOMOUS</text>
+
+        <!-- Row 1: Existing -->
+        <rect x="80" y="75" width="120" height="50" rx="6" fill="#0c1220" stroke="#1a2540"/>
+        <text x="140" y="96" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#c8d5ef">EventBridge</text>
+        <text x="140" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Mon 6am UTC</text>
+        <line x1="200" y1="100" x2="220" y2="100" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="222" y="75" width="130" height="50" rx="6" fill="#0c1220" stroke="#1a2540"/>
+        <text x="287" y="96" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#c8d5ef">ECS Fargate</text>
+        <text x="287" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">44 spiders · Mon</text>
+        <line x1="352" y1="100" x2="372" y2="100" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="374" y="75" width="120" height="50" rx="6" fill="#0c1220" stroke="#1a2540"/>
+        <text x="434" y="96" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#c8d5ef">S3 Bucket</text>
+        <text x="434" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">gzipped NDJSON</text>
+        <line x1="494" y1="100" x2="514" y2="100" stroke="#1d4ed8" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="516" y="75" width="140" height="50" rx="6" fill="#0c1220" stroke="#2dd4bf"/>
+        <text x="586" y="96" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#2dd4bf">Aurora Serverless v2</text>
+        <text x="586" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">scales near-zero idle</text>
+
+        <!-- Row 2: Dashboard -->
+        <rect x="80" y="205" width="130" height="50" rx="6" fill="#0c1220" stroke="#3b82f6"/>
+        <text x="145" y="225" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#93c5fd">Load Balancer</text>
+        <text x="145" y="240" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ALB · always-on</text>
+        <line x1="210" y1="230" x2="230" y2="230" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="232" y="205" width="140" height="50" rx="6" fill="#0c1220" stroke="#3b82f6"/>
+        <text x="302" y="225" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#93c5fd">Django REST API</text>
+        <text x="302" y="240" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ECS · always-on</text>
+        <line x1="372" y1="230" x2="392" y2="230" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="394" y="205" width="140" height="50" rx="6" fill="#0c1220" stroke="#3b82f6"/>
+        <text x="464" y="225" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#93c5fd">Ford LENS Dashboard</text>
+        <text x="464" y="240" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">6 tabs · real-time</text>
+        <!-- DB connector -->
+        <path d="M556 230 L586 230 L586 125" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+        <!-- Row 3: MCP -->
+        <rect x="80" y="335" width="140" height="50" rx="6" fill="#0c1220" stroke="#f97316"/>
+        <text x="150" y="355" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#f97316">Spider Fails</text>
+        <text x="150" y="370" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">pipelines.py hook</text>
+        <line x1="220" y1="360" x2="240" y2="360" stroke="#f97316" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="242" y="335" width="130" height="50" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="307" y="355" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#a78bfa">MCP Healer</text>
+        <text x="307" y="370" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ECS · Claude loop</text>
+        <line x1="372" y1="360" x2="392" y2="360" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="394" y="335" width="130" height="50" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="459" y="355" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#a78bfa">Claude Sonnet</text>
+        <text x="459" y="370" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">9 MCP tools</text>
+        <line x1="524" y1="360" x2="544" y2="360" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="546" y="335" width="130" height="50" rx="6" fill="#0c1220" stroke="#22c55e"/>
+        <text x="611" y="355" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#22c55e">Fix + Commit</text>
+        <text x="611" y="370" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ford-lens-auto-heal</text>
+        <line x1="676" y1="360" x2="696" y2="360" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="698" y="335" width="130" height="50" rx="6" fill="#0c1220" stroke="#22c55e"/>
+        <text x="763" y="355" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#c8d5ef">Deploy + Rerun</text>
+        <text x="763" y="370" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ECR → ECS</text>
+
+        <!-- Row 4: Outcome -->
+        <rect x="80" y="455" width="200" height="44" rx="6" fill="#0c1220" stroke="#2dd4bf" stroke-width="1.5"/>
+        <text x="180" y="472" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="800" font-size="13" fill="#2dd4bf">✓ Spider healed automatically</text>
+        <text x="180" y="487" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">no human intervention · audit trail via PR</text>
+
+        <!-- Vertical connectors -->
+        <line x1="287" y1="125" x2="287" y2="205" stroke="#1a2540" stroke-width="1" stroke-dasharray="3 4"/>
+        <line x1="180" y1="455" x2="180" y2="385" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="3 4"/>
+
+        <!-- Cost badge -->
+        <rect x="820" y="80" width="230" height="80" rx="8" fill="#080d18" stroke="#1a2540"/>
+        <text x="935" y="103" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#4a5a7a">MONTHLY COST (Option A)</text>
+        <text x="935" y="122" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="800" font-size="24" fill="#ef4444">~£200</text>
+        <text x="935" y="134" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">current</text>
+        <text x="960" y="148" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="11" fill="#4a5a7a">→</text>
+        <text x="990" y="148" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="800" font-size="18" fill="#22c55e">~£86/mo</text>
+      </svg>
+    </div>
+
+    <!-- Overview cards -->
+    <div class="steps-grid">
+      <div class="step-card" style="border-color:rgba(59,130,246,.3);cursor:pointer" onclick="setPhase(1)">
+        <div class="step-card::before" style="background:var(--blue)"></div>
+        <div class="step-number" style="color:#3b82f6">Phase 1 · Weeks 1–2</div>
+        <div class="step-title">Foundation</div>
+        <div class="step-desc">Django REST API, PostgreSQL models for all entities, seed 44 crawlers with XPath selectors, Docker setup, deploy to ECS.</div>
+        <div class="step-tags">
+          <span class="step-tag" style="background:rgba(59,130,246,.1);color:#93c5fd">Django</span>
+          <span class="step-tag" style="background:rgba(59,130,246,.1);color:#93c5fd">Aurora</span>
+          <span class="step-tag" style="background:rgba(59,130,246,.1);color:#93c5fd">ECS</span>
+          <span class="step-tag" style="background:rgba(34,197,94,.1);color:#86efac">✓ Started</span>
+        </div>
+      </div>
+      <div class="step-card" style="border-color:rgba(45,212,191,.2);cursor:pointer" onclick="setPhase(2)">
+        <div class="step-number" style="color:#2dd4bf">Phase 2 · Weeks 2–3</div>
+        <div class="step-title">Live Dashboard</div>
+        <div class="step-desc">Wire 6-tab frontend to real API. Run and Heal buttons trigger actual ECS tasks. Real-time auto-refresh every 60s.</div>
+        <div class="step-tags">
+          <span class="step-tag" style="background:rgba(45,212,191,.1);color:#5eead4">Frontend</span>
+          <span class="step-tag" style="background:rgba(45,212,191,.1);color:#5eead4">ALB</span>
+          <span class="step-tag" style="background:rgba(45,212,191,.1);color:#5eead4">API</span>
+        </div>
+      </div>
+      <div class="step-card" style="border-color:rgba(167,139,250,.2);cursor:pointer" onclick="setPhase(3)">
+        <div class="step-number" style="color:#a78bfa">Phase 3 · Weeks 3–4</div>
+        <div class="step-title">MCP Auto-Healer</div>
+        <div class="step-desc">Build MCP server with 9 tools. Wire Claude agentic loop. 15-min timeout. Branch isolation to spiders/** only.</div>
+        <div class="step-tags">
+          <span class="step-tag" style="background:rgba(167,139,250,.1);color:#c4b5fd">Claude</span>
+          <span class="step-tag" style="background:rgba(167,139,250,.1);color:#c4b5fd">MCP</span>
+          <span class="step-tag" style="background:rgba(167,139,250,.1);color:#c4b5fd">FastAPI</span>
+        </div>
+      </div>
+      <div class="step-card" style="border-color:rgba(251,191,36,.15);cursor:pointer" onclick="setPhase(4)">
+        <div class="step-number" style="color:#fbbf24">Phase 4 · Week 4+</div>
+        <div class="step-title">Full Autonomy</div>
+        <div class="step-desc">End-to-end tests, load testing 5 simultaneous failures, Aurora migration, Step Functions fix, sign-off.</div>
+        <div class="step-tags">
+          <span class="step-tag" style="background:rgba(251,191,36,.1);color:#fde68a">E2E Tests</span>
+          <span class="step-tag" style="background:rgba(251,191,36,.1);color:#fde68a">Sign-off</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PHASE 1 ══════════ -->
+  <div class="phase-view p1" id="phase-1">
+    <div class="phase-hero">
+      <div class="phase-intro">
+        <div class="phase-badge">Phase 1 · Weeks 1–2</div>
+        <div class="phase-h"><span>Foundation</span></div>
+        <div class="phase-desc">Build the backend that everything else depends on. Django REST API, four PostgreSQL models, 44 crawlers seeded with XPath selectors, Docker dev environment, and ECS deployment via GitHub Actions. The spiders are copied across and pipelines.py gets the failure hook.</div>
+        <div class="phase-meta">
+          <div class="phase-meta-row"><span>Repo</span><span>Fluency-M-C-Saatchi/ford_scraping</span></div>
+          <div class="phase-meta-row"><span>Stack</span><span>Django 5 · DRF · PostgreSQL · Docker</span></div>
+          <div class="phase-meta-row"><span>Deploy</span><span>ECS Fargate · ECR · ALB · GitHub Actions</span></div>
+          <div class="phase-meta-row"><span>Status</span><span style="color:var(--green)">✓ In Progress — code pushed</span></div>
+        </div>
+      </div>
+      <div class="deliverables">
+        <h3>Deliverables</h3>
+        <div class="deliverable-item"><div class="d-dot" style="background:var(--teal)"></div><div><div>Django REST API live on ECS behind ALB</div><div class="d-file">dashboard/ford_lens/</div></div></div>
+        <div class="deliverable-item"><div class="d-dot" style="background:var(--teal)"></div><div><div>Crawler, SpiderRun, HealAttempt, DataQualitySnapshot models</div><div class="d-file">crawlers/models.py · heal_log/models.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot" style="background:var(--teal)"></div><div><div>All 44 crawlers seeded with default XPath selectors</div><div class="d-file">seed_crawlers management command</div></div></div>
+        <div class="deliverable-item"><div class="d-dot" style="background:var(--teal)"></div><div><div>pipelines.py failure hook — fires on 0 items or exception</div><div class="d-file">car_forums/pipelines.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot" style="background:var(--teal)"></div><div><div>44 summary crawler test scripts (7-check validation)</div><div class="d-file">car_forums/tests/{spider}_test.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot" style="background:var(--teal)"></div><div><div>docker-compose for local dev (auto-migrate on boot)</div><div class="d-file">docker-compose.yml</div></div></div>
+      </div>
+    </div>
+
+    <div class="diagram-section">
+      <div class="section-label">Phase 1 architecture</div>
+      <svg class="diagram-svg" viewBox="0 0 900 200" role="img">
+        <defs><marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <rect x="20" y="60" width="120" height="60" rx="6" fill="#0c1220" stroke="#3b82f6"/>
+        <text x="80" y="86" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#93c5fd">django-admin</text>
+        <text x="80" y="102" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">migrate + seed</text>
+        <text x="80" y="116" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">44 crawlers</text>
+        <line x1="140" y1="90" x2="162" y2="90" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <rect x="164" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#3b82f6"/>
+        <text x="234" y="84" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#93c5fd">DRF ViewSets</text>
+        <text x="234" y="99" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">/crawlers/ /heal-log/</text>
+        <text x="234" y="113" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">/data-quality/ /stats/</text>
+        <line x1="304" y1="90" x2="326" y2="90" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <rect x="328" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#2dd4bf"/>
+        <text x="398" y="84" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#2dd4bf">Aurora v2</text>
+        <text x="398" y="99" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">PostgreSQL</text>
+        <text x="398" y="113" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">4 models · 7 tables</text>
+        <line x1="468" y1="90" x2="490" y2="90" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <rect x="492" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#22c55e"/>
+        <text x="562" y="84" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#22c55e">ECS Service</text>
+        <text x="562" y="99" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Gunicorn · port 8000</text>
+        <text x="562" y="113" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always-on · ALB</text>
+        <line x1="632" y1="90" x2="654" y2="90" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <rect x="656" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#22c55e"/>
+        <text x="726" y="81" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#c8d5ef">API Live</text>
+        <text x="726" y="96" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#22c55e">GET /api/crawlers/ → 44</text>
+        <text x="726" y="108" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#22c55e">GET /api/stats/</text>
+        <text x="726" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#22c55e">POST /notify-failure/</text>
+      </svg>
+    </div>
+
+    <div class="section-label" style="margin-bottom:16px">Implementation steps</div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-number">Step 1 · Complete</div><div class="step-title">Copy spider files from old repo</div><div class="step-desc">All 80 spider files, pipelines.py, middlewares.py, settings.py, items.py, Dockerfile, requirements.txt copied from fluency_scraping.</div><div class="step-tags"><span class="step-tag" style="background:rgba(34,197,94,.1);color:#86efac">✓ Done</span></div></div>
+      <div class="step-card"><div class="step-number">Step 2 · Complete</div><div class="step-title">Add failure hook to pipelines.py</div><div class="step-desc">_notify_failure() method added. Fires silently on spider exception OR zero items scraped. POSTs to DASHBOARD_URL/api/crawlers/notify-failure/. Never breaks the spider.</div><div class="step-code">os.environ.get('DASHBOARD_URL')</div><div class="step-tags"><span class="step-tag" style="background:rgba(34,197,94,.1);color:#86efac">✓ Done</span></div></div>
+      <div class="step-card"><div class="step-number">Step 3 · Complete</div><div class="step-title">Build Django REST API</div><div class="step-desc">All models, serializers, ViewSets, URL routers. Crawler, SpiderRun, SelectorConfig, HealAttempt, DataQualitySnapshot, VolumeTrend.</div><div class="step-tags"><span class="step-tag" style="background:rgba(34,197,94,.1);color:#86efac">✓ Done</span></div></div>
+      <div class="step-card"><div class="step-number">Step 4 · Next</div><div class="step-title">Run migrations + seed crawlers</div><div class="step-desc">Run docker-compose up. Django auto-migrates and seeds all 44 crawlers on first boot. Verify API returns 44 crawlers at /api/crawlers/.</div><div class="step-code">docker-compose up
+# → localhost:8000/api/crawlers/
+# → 44 crawlers seeded</div><div class="step-tags"><span class="step-tag" style="background:rgba(59,130,246,.1);color:#93c5fd">Next</span></div></div>
+      <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Write 44 summary crawler tests</div><div class="step-desc">Each spider gets a companion test script in car_forums/tests/. ~30 lines Python, scrapes 1–2 pages, validates 7 fields. Claude calls these before committing any fix.</div><div class="step-code">car_forums/tests/speakev_daily_test.py
+# 7 checks: items>0, author, content,
+# date, title, next_page, no exceptions</div></div>
+      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Create ECR repos + ECS services</div><div class="step-desc">Create ford-lens-dashboard and ford-lens-mcp ECR repos. Create ECS services for both. Add GitHub Secrets. Trigger deploy_dashboard.yml.</div><div class="step-code">aws ecr create-repository \
+  --repository-name ford-lens-dashboard</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PHASE 2 ══════════ -->
+  <div class="phase-view p2" id="phase-2">
+    <div class="phase-hero">
+      <div class="phase-intro">
+        <div class="phase-badge">Phase 2 · Weeks 2–3</div>
+        <div class="phase-h"><span>Live Dashboard</span></div>
+        <div class="phase-desc">Wire the existing 6-tab dashboard HTML to the real Django API. Replace all mock JavaScript data with real API calls. Run Crawler and Heal buttons trigger actual ECS tasks and MCP healer. Dashboard auto-refreshes every 60 seconds.</div>
+        <div class="phase-meta">
+          <div class="phase-meta-row"><span>Frontend</span><span>Plain HTML/JS — served by Django at /</span></div>
+          <div class="phase-meta-row"><span>Hosting</span><span>ECS Fargate service behind ALB (always-on)</span></div>
+          <div class="phase-meta-row"><span>Refresh</span><span>Polling every 60s for live status</span></div>
+          <div class="phase-meta-row"><span>Depends on</span><span>Phase 1 API fully deployed</span></div>
+        </div>
+      </div>
+      <div class="deliverables">
+        <h3>Deliverables</h3>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Dashboard wired to /api/crawlers/ — real status per spider</div><div class="d-file">frontend/ford_lens_dashboard.html</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Run Crawler button → POST /crawlers/{id}/run/ → ECS task</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Heal button → POST /crawlers/{id}/heal/ → MCP server</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Heal Log tab shows real HealAttempts from Aurora</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Data Quality tab from /api/data-quality/fleet/</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Date range filters hit API with query params</div></div></div>
+      </div>
+    </div>
+
+    <div class="diagram-section">
+      <div class="section-label">Phase 2 data flow</div>
+      <svg class="diagram-svg" viewBox="0 0 900 200" role="img">
+        <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <rect x="20" y="60" width="130" height="60" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="85" y="84" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#c4b5fd">Browser</text>
+        <text x="85" y="99" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">dashboard HTML</text>
+        <text x="85" y="113" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">6 tabs · fetch()</text>
+        <line x1="150" y1="90" x2="172" y2="90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <rect x="174" y="60" width="130" height="60" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="239" y="82" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#c4b5fd">Load Balancer</text>
+        <text x="239" y="97" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ALB · port 443</text>
+        <text x="239" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa">always-on · ~£16/mo</text>
+        <line x1="304" y1="90" x2="326" y2="90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <rect x="328" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="398" y="82" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#c4b5fd">Django REST API</text>
+        <text x="398" y="97" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ECS · port 8000</text>
+        <text x="398" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa">always-on · ~£14/mo</text>
+        <line x1="468" y1="90" x2="490" y2="90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <rect x="492" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#2dd4bf"/>
+        <text x="562" y="82" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#2dd4bf">Aurora v2</text>
+        <text x="562" y="97" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">Crawlers · Runs</text>
+        <text x="562" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">HealAttempts · DQ</text>
+        <path d="M632 90 L680 90 L680 150 L85 150 L85 120" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr2)"/>
+        <text x="400" y="168" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">↵ crawlers · heal log · data quality · stats</text>
+      </svg>
+    </div>
+
+    <div class="section-label" style="margin-bottom:16px">Implementation steps</div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-number">Step 1</div><div class="step-title">Replace mock data with real API calls</div><div class="step-desc">Replace all hardcoded JS arrays in the dashboard HTML with fetch() calls to the Django REST API. Each tab gets a loadData() function.</div><div class="step-code">const res = await fetch('/api/crawlers/');
+const {results} = await res.json();</div></div>
+      <div class="step-card"><div class="step-number">Step 2</div><div class="step-title">Wire Run Crawler button</div><div class="step-desc">Run button calls POST /api/crawlers/{id}/run/. Django triggers ECS Fargate task via boto3. Button shows spinner and live ECS status.</div></div>
+      <div class="step-card"><div class="step-number">Step 3</div><div class="step-title">Wire Heal button</div><div class="step-desc">Heal button calls POST /api/crawlers/{id}/heal/. Django creates HealAttempt, calls MCP server. Dashboard polls /api/heal-log/{id}/ every 5s for progress.</div></div>
+      <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Date range filters</div><div class="step-desc">Filter selectors send date_from + date_to query params to /api/crawlers/. Django filters SpiderRuns by date range. Results update instantly.</div></div>
+      <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Auto-refresh every 60s</div><div class="step-desc">setInterval polling re-fetches spider statuses every 60 seconds. Status dots update live. Running spiders show animated pulse.</div><div class="step-code">setInterval(loadCrawlers, 60000);</div></div>
+      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Deploy frontend via ECS</div><div class="step-desc">Copy dashboard HTML into dashboard/templates/dashboard.html. Django serves it at /. ALB routes port 443 to ECS service. Done.</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PHASE 3 ══════════ -->
+  <div class="phase-view p3" id="phase-3">
+    <div class="phase-hero">
+      <div class="phase-intro">
+        <div class="phase-badge">Phase 3 · Weeks 3–4</div>
+        <div class="phase-h"><span>MCP Auto-Healer</span></div>
+        <div class="phase-desc">Build the FastAPI MCP server with 9 tool endpoints. Wire the Claude Sonnet agentic loop with a 15-minute hard timeout. Set up the ford-lens-auto-heal branch restricted to car_forums/spiders/** only. Write the CLAUDE.md context file. The pipeline becomes self-healing.</div>
+        <div class="phase-meta">
+          <div class="phase-meta-row"><span>Server</span><span>FastAPI · ECS Fargate always-on · port 8001</span></div>
+          <div class="phase-meta-row"><span>AI Model</span><span>Claude Sonnet · max 20 tool calls · ~£0.35/heal</span></div>
+          <div class="phase-meta-row"><span>Timeout</span><span>15 min loop cutoff + ECS stopTimeout backstop</span></div>
+          <div class="phase-meta-row"><span>Repo safety</span><span>ford-lens-auto-heal branch · spiders/** only</span></div>
+        </div>
+      </div>
+      <div class="deliverables">
+        <h3>Deliverables</h3>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>MCP server with 9 tool endpoints (FastAPI)</div><div class="d-file">mcp_server/server.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>GitHub tools: get_spider_code, commit_spider_fix</div><div class="d-file">mcp_server/tools/github_tools.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>ECS tools: trigger_ecs_run, poll_task_status</div><div class="d-file">mcp_server/tools/ecs_tools.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Spider tools: classify_failure, fetch_page_html, try_all_strategies</div><div class="d-file">mcp_server/tools/spider_tools.py</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>ford-lens-auto-heal branch with path protection rules</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>CLAUDE.md — spider codebase conventions for Claude</div><div class="d-file">CLAUDE.md</div></div></div>
+      </div>
+    </div>
+
+    <div class="diagram-section">
+      <div class="section-label">Phase 3 — Claude agentic loop</div>
+      <svg class="diagram-svg" viewBox="0 0 900 280" role="img">
+        <defs><marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <!-- Row 1: trigger -->
+        <text x="20" y="25" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">TRIGGER</text>
+        <rect x="20" y="34" width="120" height="52" rx="6" fill="#0c1220" stroke="#f97316"/>
+        <text x="80" y="55" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#f97316">Spider Fails</text>
+        <text x="80" y="70" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">pipelines.py</text>
+        <text x="80" y="80" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">POST /notify-failure</text>
+        <line x1="140" y1="60" x2="162" y2="60" stroke="#f97316" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <rect x="164" y="34" width="130" height="52" rx="6" fill="#0c1220" stroke="#f97316" stroke-opacity=".5"/>
+        <text x="229" y="55" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#c8d5ef">Django API</text>
+        <text x="229" y="70" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">creates HealAttempt</text>
+        <text x="229" y="80" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">calls MCP server</text>
+        <line x1="294" y1="60" x2="316" y2="60" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <rect x="318" y="34" width="130" height="52" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="383" y="55" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#a78bfa">MCP Healer</text>
+        <text x="383" y="70" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">FastAPI · ECS</text>
+        <text x="383" y="80" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa">15-min timeout</text>
+        <line x1="448" y1="60" x2="470" y2="60" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <rect x="472" y="34" width="130" height="52" rx="6" fill="#0c1220" stroke="#a78bfa"/>
+        <text x="537" y="55" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#a78bfa">Claude Sonnet</text>
+        <text x="537" y="68" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">agentic loop</text>
+        <text x="537" y="80" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa">≤20 tool calls</text>
+
+        <!-- Row 2: tool calls -->
+        <text x="20" y="125" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">MCP TOOLS (9 ENDPOINTS)</text>
+        <rect x="20" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#a78bfa" stroke-opacity=".4"/>
+        <text x="70" y="152" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#a78bfa">classify_failure</text>
+        <text x="70" y="166" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">always first</text>
+        <rect x="130" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#a78bfa" stroke-opacity=".4"/>
+        <text x="180" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#a78bfa">try_all_strategies</text>
+        <text x="180" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">anti-bot</text>
+        <rect x="240" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#a78bfa" stroke-opacity=".4"/>
+        <text x="290" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#a78bfa">fetch_page_html</text>
+        <text x="290" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">structure fix</text>
+        <rect x="350" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#3b82f6" stroke-opacity=".5"/>
+        <text x="400" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#93c5fd">get_spider_code</text>
+        <text x="400" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">GitHub API</text>
+        <rect x="460" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#3b82f6" stroke-opacity=".5"/>
+        <text x="510" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#93c5fd">run_summary</text>
+        <text x="510" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">7-check gate</text>
+        <rect x="570" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#3b82f6" stroke-opacity=".5"/>
+        <text x="620" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#93c5fd">commit_spider_fix</text>
+        <text x="620" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">auto-heal branch</text>
+        <rect x="680" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#22c55e" stroke-opacity=".5"/>
+        <text x="730" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#86efac">trigger_ecs_run</text>
+        <text x="730" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">rerun spider</text>
+        <rect x="790" y="134" width="100" height="42" rx="5" fill="#0c1220" stroke="#22c55e" stroke-opacity=".5"/>
+        <text x="840" y="150" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="9" fill="#86efac">update_heal_status</text>
+        <text x="840" y="164" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">live dashboard</text>
+
+        <!-- Row 3: outcome -->
+        <text x="20" y="210" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a" letter-spacing="1">OUTCOME</text>
+        <rect x="20" y="220" width="200" height="44" rx="6" fill="#0c1220" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="120" y="238" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#22c55e">✓ Spider fixed &amp; redeployed</text>
+        <text x="120" y="254" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">PR created · human review before merge to main</text>
+        <rect x="240" y="220" width="200" height="44" rx="6" fill="#0c1220" stroke="#ef4444"/>
+        <text x="340" y="238" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#ef4444">✗ Cannot fix → Slack alert</text>
+        <text x="340" y="254" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">3 attempts/week cap · needs_human_review</text>
+      </svg>
+    </div>
+
+    <div class="section-label" style="margin-bottom:16px">Implementation steps</div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-number">Step 1</div><div class="step-title">Build FastAPI MCP server skeleton</div><div class="step-desc">Create mcp_server/server.py. FastAPI app with /heal endpoint, /health check, Claude agentic loop with 15-minute wall-clock timeout.</div><div class="step-code">POST /heal → start Claude loop
+GET  /health → {"status":"ok"}</div></div>
+      <div class="step-card"><div class="step-number">Step 2</div><div class="step-title">Build spider_tools.py (4 tools)</div><div class="step-desc">classify_failure() — reads error log, returns failure type. test_url_strategy() — tests one bypass. try_all_strategies() — tries all 4. fetch_page_html() — downloads live HTML.</div></div>
+      <div class="step-card"><div class="step-number">Step 3</div><div class="step-title">Build github_tools.py (2 tools)</div><div class="step-desc">get_spider_code() — fetches spider Python source via GitHub Contents API. commit_spider_fix() — pushes complete fixed file to ford-lens-auto-heal branch only.</div></div>
+      <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Build ecs_tools.py (2 tools)</div><div class="step-desc">trigger_ecs_run() — starts Fargate task with CMD override for spider name. poll_task_status() — polls DescribeTasks every 30s until STOPPED.</div></div>
+      <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Create ford-lens-auto-heal branch</div><div class="step-desc">Create the branch. Add GitHub branch protection rules restricting Claude's token to car_forums/spiders/** only. Cannot touch pipelines, settings, workflows.</div><div class="step-code">git checkout -b ford-lens-auto-heal
+# Branch protection: spiders/** only</div></div>
+      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Write CLAUDE.md</div><div class="step-desc">Codebase conventions: middleware classes, XPath patterns, item fields, how spiders are structured, how to add null guards, commit message format.</div><div class="step-code">CLAUDE.md → always read by Claude
+# Spider conventions
+# Middleware classes
+# XPath patterns</div></div>
+      <div class="step-card"><div class="step-number">Step 7</div><div class="step-title">Wire run_summary_crawler tool</div><div class="step-desc">Claude calls this tool before committing. Runs the spider's companion test script against 1–2 pages. Returns passed:bool + which of the 7 checks failed.</div></div>
+      <div class="step-card"><div class="step-number">Step 8</div><div class="step-title">Deploy MCP server to ECS</div><div class="step-desc">Deploy ford-lens-mcp ECS service (always-on). Set stopTimeout: 900s (15 min). Add ANTHROPIC_API_KEY and GITHUB_TOKEN to task definition env vars.</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PHASE 4 ══════════ -->
+  <div class="phase-view p4" id="phase-4">
+    <div class="phase-hero">
+      <div class="phase-intro">
+        <div class="phase-badge">Phase 4 · Week 4+</div>
+        <div class="phase-h"><span>Full Autonomy</span></div>
+        <div class="phase-desc">End-to-end validation, infrastructure cleanup, load testing with 5 simultaneous failures, Aurora Serverless v2 migration, Step Functions timeout fix, and final sign-off from Danny and Mike. The pipeline runs itself.</div>
+        <div class="phase-meta">
+          <div class="phase-meta-row"><span>E2E test</span><span>Trigger real failure → watch full heal cycle</span></div>
+          <div class="phase-meta-row"><span>Load test</span><span>5 simultaneous spider failures at once</span></div>
+          <div class="phase-meta-row"><span>Aurora</span><span>Snapshot → restore → swap endpoint (~2hrs)</span></div>
+          <div class="phase-meta-row"><span>Sign-off</span><span>Danny + Mike confirmation</span></div>
+        </div>
+      </div>
+      <div class="deliverables">
+        <h3>Deliverables</h3>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Full end-to-end heal cycle confirmed working</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>PR flow verified — fix on branch, human approves → main</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Slack alert fires correctly on 15-min timeout</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Aurora Serverless v2 migration complete — £165→£30/mo</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Step Functions TimeoutSeconds 5400→14400 fixed</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>ford-database-staging-old2 decommissioned if unused</div></div></div>
+      </div>
+    </div>
+
+    <div class="diagram-section">
+      <div class="section-label">Phase 4 — Aurora migration + cost after</div>
+      <svg class="diagram-svg" viewBox="0 0 900 180" role="img">
+        <defs><marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+        <!-- Migration steps -->
+        <rect x="20" y="30" width="130" height="60" rx="6" fill="#0c1220" stroke="#ef4444"/>
+        <text x="85" y="52" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#f87171">RDS db.t4g.xlarge</text>
+        <text x="85" y="67" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">~£165/mo</text>
+        <text x="85" y="81" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#ef4444">24/7 · 6% CPU idle</text>
+        <line x1="150" y1="60" x2="170" y2="60" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <text x="180" y="54" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#fbbf24">1. Snapshot</text>
+        <rect x="160" y="30" width="110" height="60" rx="6" fill="#0c1220" stroke="#fbbf24" stroke-opacity=".6"/>
+        <text x="215" y="54" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#fde68a">RDS Snapshot</text>
+        <text x="215" y="70" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">full backup</text>
+        <text x="215" y="82" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">no data loss</text>
+        <line x1="270" y1="60" x2="290" y2="60" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <text x="310" y="22" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#fbbf24">2. Restore as Aurora</text>
+        <rect x="292" y="30" width="130" height="60" rx="6" fill="#0c1220" stroke="#2dd4bf"/>
+        <text x="357" y="52" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="12" fill="#2dd4bf">Aurora Serverless v2</text>
+        <text x="357" y="67" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">same data · same SQL</text>
+        <text x="357" y="81" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#2dd4bf">scales to zero idle</text>
+        <line x1="422" y1="60" x2="442" y2="60" stroke="#2dd4bf" stroke-width="1.5" marker-end="url(#arr4)"/>
+        <text x="470" y="22" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#2dd4bf">3. Swap DB_HOST</text>
+        <rect x="444" y="30" width="130" height="60" rx="6" fill="#0c1220" stroke="#22c55e"/>
+        <text x="509" y="50" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#22c55e">✓ Done</text>
+        <text x="509" y="65" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">update env var only</text>
+        <text x="509" y="79" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#22c55e">~2 hours total</text>
+
+        <!-- Cost summary -->
+        <rect x="620" y="20" width="260" height="130" rx="8" fill="#080d18" stroke="#1a2540"/>
+        <text x="750" y="44" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="11" fill="#4a5a7a">FINAL MONTHLY COST</text>
+        <text x="668" y="68" font-family="'JetBrains Mono',monospace" font-size="9" fill="#4a5a7a">Aurora Serverless v2</text><text x="858" y="68" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="9" fill="#2dd4bf">~£30</text>
+        <text x="668" y="84" font-family="'JetBrains Mono',monospace" font-size="9" fill="#4a5a7a">ECS Django API + ALB</text><text x="858" y="84" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="9" fill="#ef4444">~£28</text>
+        <text x="668" y="100" font-family="'JetBrains Mono',monospace" font-size="9" fill="#4a5a7a">ECS MCP Healer</text><text x="858" y="100" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="9" fill="#ef4444">~£14</text>
+        <text x="668" y="116" font-family="'JetBrains Mono',monospace" font-size="9" fill="#4a5a7a">Claude API + S3 + misc</text><text x="858" y="116" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="9" fill="#fbbf24">~£14</text>
+        <line x1="640" y1="124" x2="868" y2="124" stroke="#1a2540" stroke-width="1"/>
+        <text x="668" y="140" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#22c55e">Total</text><text x="858" y="140" text-anchor="end" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="16" fill="#22c55e">~£86/mo</text>
+      </svg>
+    </div>
+
+    <div class="section-label" style="margin-bottom:16px">Implementation steps</div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-number">Step 1</div><div class="step-title">End-to-end test</div><div class="step-desc">Deliberately break a spider by pointing it at a non-existent URL. Watch the full cycle: failure → notification → Claude heal loop → commit → redeploy → success.</div></div>
+      <div class="step-card"><div class="step-number">Step 2</div><div class="step-title">Verify PR flow</div><div class="step-desc">Confirm that Claude's fix commits to ford-lens-auto-heal branch only. Confirm a PR is raised. Confirm main is untouched until human approves.</div></div>
+      <div class="step-card"><div class="step-number">Step 3</div><div class="step-title">Verify Slack alert on timeout</div><div class="step-desc">Test that Slack alert fires when Claude hits the 15-minute limit. Verify spider is marked needs_human_review. Verify 3-attempt cap works.</div></div>
+      <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Load test — 5 simultaneous failures</div><div class="step-desc">Break 5 spiders at once. Verify all 5 heal sessions run in parallel. Dashboard shows all 5 updating live. No sessions block each other.</div></div>
+      <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Aurora Serverless v2 migration</div><div class="step-desc">Take RDS snapshot → restore as Aurora Serverless v2 → update DB_HOST env var in ECS → run one Monday cycle → decommission old RDS. ~2 hours.</div><div class="step-code"># Saves ~£135/month
+# £165 → £30/mo</div></div>
+      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Fix Step Functions timeout</div><div class="step-desc">Change TimeoutSeconds from 5400 (90 min) to 14400 (4 hours) on DataIngestion and PostgresETL states. Fixes the Amazon CORE pipeline timeouts.</div><div class="step-code">TimeoutSeconds: 5400  →  14400
+# DataIngestion + PostgresETL</div></div>
+      <div class="step-card"><div class="step-number">Step 7</div><div class="step-title">Decommission old staging DB</div><div class="step-desc">Confirm ford-database-staging-old2 is unused. Take final snapshot. Delete instance. Saves ~£180/month.</div></div>
+      <div class="step-card"><div class="step-number">Step 8</div><div class="step-title">Sign-off from Danny and Mike</div><div class="step-desc">Walk through the full system live. Show a heal cycle end-to-end. Confirm costs, PR flow, Slack alerts. Get sign-off. Done.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>Ford LENS Auto-Healer · M+C Saatchi Fluency · Asad Ikram</span>
+  <span>Repo: github.com/Fluency-M-C-Saatchi/ford_scraping</span>
+</div>
+
+<script>
+function setPhase(n) {
+  // Update pills
+  document.querySelectorAll('.phase-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.phase-pill[data-phase="${n}"]`).classList.add('active');
+
+  // Update overview cards
+  document.querySelectorAll('.ov-card').forEach(c => c.classList.remove('active-card'));
+  document.querySelector(`.ov-card[data-phase="${n}"]`).classList.add('active-card');
+
+  // Update views
+  document.querySelectorAll('.phase-view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`phase-${n}`).classList.add('active');
+
+  // Scroll to top of main
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  const active = document.querySelector('.phase-pill.active');
+  const cur = parseInt(active.dataset.phase);
+  if (e.key === 'ArrowRight' && cur < 4) setPhase(cur + 1);
+  if (e.key === 'ArrowLeft' && cur > 0) setPhase(cur - 1);
+});
+</script>
+</body>
+</html>
