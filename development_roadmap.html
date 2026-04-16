@@ -1141,25 +1141,25 @@ body::after {
         <div class="check-text">Add XPath templates for XenForo, phpBB, vBulletin, Custom engines</div>
       </div>
     </div>
-    <div class="check-item" id="ci-p1_27" onclick="toggleCheck('p1_27', 1)">
+    <div class="check-item" id="ci-p1_27" data-predone="true" onclick="toggleCheck('p1_27', 1)">
       <div class="check-box" id="cb-p1_27" style=""></div>
       <div style="flex:1">
         <div class="check-text">Run migrations locally — verify tables created</div>
       </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
     </div>
-    <div class="check-item" id="ci-p1_28" onclick="toggleCheck('p1_28', 1)">
+    <div class="check-item" id="ci-p1_28" data-predone="true" onclick="toggleCheck('p1_28', 1)">
       <div class="check-box" id="cb-p1_28" style=""></div>
       <div style="flex:1">
         <div class="check-text">Run seed_crawlers — verify 44 crawlers in DB</div>
       </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
     </div>
-    <div class="check-item" id="ci-p1_29" onclick="toggleCheck('p1_29', 1)">
+    <div class="check-item" id="ci-p1_29" data-predone="true" onclick="toggleCheck('p1_29', 1)">
       <div class="check-box" id="cb-p1_29" style=""></div>
       <div style="flex:1">
         <div class="check-text">Verify GET /api/crawlers/ returns 44 crawlers</div>
       </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
     </div>
-    <div class="check-item" id="ci-p1_30" onclick="toggleCheck('p1_30', 1)">
+    <div class="check-item" id="ci-p1_30" data-predone="true" onclick="toggleCheck('p1_30', 1)">
       <div class="check-box" id="cb-p1_30" style=""></div>
       <div style="flex:1">
         <div class="check-text">Verify GET /api/crawlers/stats/ returns counts</div>
@@ -1888,7 +1888,8 @@ const preDone = [
   'p1_07','p1_08','p1_09','p1_10',
   'p1_11','p1_12',
   'p1_14','p1_15','p1_16','p1_17','p1_18','p1_19','p1_20','p1_21','p1_22','p1_23','p1_24',
-  'p1_25','p1_26'
+  'p1_25','p1_26',
+  'p1_27','p1_28','p1_29','p1_30'
 ];
 
 function initChecks() {
