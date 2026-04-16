@@ -524,6 +524,151 @@ body::after {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ── CHECKLIST SYSTEM ──────────────────────────── */
+.checklist-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.checklist-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.checklist-title {
+  font-family: var(--cond);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.checklist-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.progress-bar-wrap {
+  width: 140px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+.progress-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  min-width: 40px;
+  text-align: right;
+}
+.checklist-group {
+  padding: 0;
+}
+.checklist-group-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+  padding: 12px 20px 6px;
+  border-top: 1px solid var(--border);
+  opacity: .7;
+}
+.checklist-group:first-child .checklist-group-label { border-top: none; }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background .15s;
+  border-bottom: 1px solid rgba(26,37,64,.4);
+  user-select: none;
+}
+.check-item:last-child { border-bottom: none; }
+.check-item:hover { background: rgba(255,255,255,.02); }
+.check-item.done { opacity: .65; }
+.check-item.done .check-text { text-decoration: line-through; color: var(--muted); }
+.check-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  background: transparent;
+}
+.check-item.done .check-box {
+  border-color: transparent;
+}
+.check-box svg { display: none; width: 11px; height: 11px; }
+.check-item.done .check-box svg { display: block; }
+.check-text {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  flex: 1;
+}
+.check-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.check-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+/* phase colour overrides for checkbox */
+.p1 .check-item.done .check-box { background: var(--teal); }
+.p1 .progress-bar-fill { background: var(--teal); }
+.p2 .check-item.done .check-box { background: var(--purple); }
+.p2 .progress-bar-fill { background: var(--purple); }
+.p3 .check-item.done .check-box { background: var(--green); }
+.p3 .progress-bar-fill { background: var(--green); }
+.p4 .check-item.done .check-box { background: var(--yellow); }
+.p4 .progress-bar-fill { background: var(--yellow); }
+/* overview progress ring */
+.phase-ring { position: relative; width: 42px; height: 42px; flex-shrink: 0; }
+.phase-ring svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+.ring-fill { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+.ring-pct {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 9px; font-weight: 600; color: var(--text);
+}
+/* ov-card with ring */
+.ov-card { display: flex; flex-direction: column; gap: 4px; }
+.ov-card-top { display: flex; align-items: center; gap: 8px; }
+
 </style>
 </head>
 <body>
@@ -558,24 +703,68 @@ body::after {
       <div class="ov-weeks">4 weeks total</div>
     </div>
     <div class="ov-card" data-phase="1" onclick="setPhase(1)">
-      <div class="ov-number">Phase 1</div>
-      <div class="ov-title">Foundation</div>
-      <div class="ov-weeks">Weeks 1–2</div>
+      <div class="ov-card-top">
+        <div>
+          <div class="ov-number">Phase 1</div>
+          <div class="ov-title">Foundation</div>
+          <div class="ov-weeks">Weeks 1–2</div>
+        </div>
+        <div class="phase-ring">
+          <svg width="42" height="42" viewBox="0 0 42 42">
+            <circle class="ring-bg" cx="21" cy="21" r="15"/>
+            <circle class="ring-fill" id="ring-p1" cx="21" cy="21" r="15" stroke="#2dd4bf" stroke-dasharray="94.25" stroke-dashoffset="40.70"/>
+          </svg>
+          <div class="ring-pct" id="rpct-p1">56%</div>
+        </div>
+      </div>
     </div>
     <div class="ov-card" data-phase="2" onclick="setPhase(2)">
-      <div class="ov-number">Phase 2</div>
-      <div class="ov-title">Live Dashboard</div>
-      <div class="ov-weeks">Weeks 2–3</div>
+      <div class="ov-card-top">
+        <div>
+          <div class="ov-number">Phase 2</div>
+          <div class="ov-title">Live Dashboard</div>
+          <div class="ov-weeks">Weeks 2–3</div>
+        </div>
+        <div class="phase-ring">
+          <svg width="42" height="42" viewBox="0 0 42 42">
+            <circle class="ring-bg" cx="21" cy="21" r="15"/>
+            <circle class="ring-fill" id="ring-p2" cx="21" cy="21" r="15" stroke="#a78bfa" stroke-dasharray="94.25" stroke-dashoffset="94.25"/>
+          </svg>
+          <div class="ring-pct" id="rpct-p2">0%</div>
+        </div>
+      </div>
     </div>
     <div class="ov-card" data-phase="3" onclick="setPhase(3)">
-      <div class="ov-number">Phase 3</div>
-      <div class="ov-title">MCP Auto-Healer</div>
-      <div class="ov-weeks">Weeks 3–4</div>
+      <div class="ov-card-top">
+        <div>
+          <div class="ov-number">Phase 3</div>
+          <div class="ov-title">MCP Auto-Healer</div>
+          <div class="ov-weeks">Weeks 3–4</div>
+        </div>
+        <div class="phase-ring">
+          <svg width="42" height="42" viewBox="0 0 42 42">
+            <circle class="ring-bg" cx="21" cy="21" r="15"/>
+            <circle class="ring-fill" id="ring-p3" cx="21" cy="21" r="15" stroke="#22c55e" stroke-dasharray="94.25" stroke-dashoffset="94.25"/>
+          </svg>
+          <div class="ring-pct" id="rpct-p3">0%</div>
+        </div>
+      </div>
     </div>
     <div class="ov-card" data-phase="4" onclick="setPhase(4)">
-      <div class="ov-number">Phase 4</div>
-      <div class="ov-title">Full Autonomy</div>
-      <div class="ov-weeks">Week 4+</div>
+      <div class="ov-card-top">
+        <div>
+          <div class="ov-number">Phase 4</div>
+          <div class="ov-title">Full Autonomy</div>
+          <div class="ov-weeks">Week 4+</div>
+        </div>
+        <div class="phase-ring">
+          <svg width="42" height="42" viewBox="0 0 42 42">
+            <circle class="ring-bg" cx="21" cy="21" r="15"/>
+            <circle class="ring-fill" id="ring-p4" cx="21" cy="21" r="15" stroke="#fbbf24" stroke-dasharray="94.25" stroke-dashoffset="94.25"/>
+          </svg>
+          <div class="ring-pct" id="rpct-p4">0%</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -778,6 +967,609 @@ body::after {
         <text x="726" y="120" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#22c55e">POST /notify-failure/</text>
       </svg>
     </div>
+
+    <div class="checklist-panel" id="cl-phase1">
+  <div class="checklist-header">
+    <div class="checklist-title">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="#2dd4bf" stroke-width="1.5"/><polyline points="3,7 6,10 11,4" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Build Checklist
+    </div>
+    <div class="checklist-progress">
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="pb-phase1" style="width:56%;background:#2dd4bf"></div></div>
+      <div class="progress-label" id="pl-phase1">25/44</div>
+    </div>
+  </div>
+  <div class="checklist-group">
+    <div class="checklist-group-label" style="border-top:none">Repo Setup</div>
+    <div class="check-item done" id="ci-p1_01" onclick="toggleCheck('p1_01', 1)">
+      <div class="check-box" id="cb-p1_01" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Create Fluency-M-C-Saatchi/ford_scraping repo</div><div class="check-sub">New repo for Ford LENS project</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_02" onclick="toggleCheck('p1_02', 1)">
+      <div class="check-box" id="cb-p1_02" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Create folder structure (dashboard/, mcp_server/, car_forums/tests/, assets/)</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_03" onclick="toggleCheck('p1_03', 1)">
+      <div class="check-box" id="cb-p1_03" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add animated SVG banner (assets/banner.svg)</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_04" onclick="toggleCheck('p1_04', 1)">
+      <div class="check-box" id="cb-p1_04" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Write README.md with badges, architecture, MCP tool table</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_05" onclick="toggleCheck('p1_05', 1)">
+      <div class="check-box" id="cb-p1_05" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add .gitignore (pycache, .env, .DS_Store)</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_06" onclick="toggleCheck('p1_06', 1)">
+      <div class="check-box" id="cb-p1_06" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add .env.example with all required env vars</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Spider Files</div>
+    <div class="check-item done" id="ci-p1_07" onclick="toggleCheck('p1_07', 1)">
+      <div class="check-box" id="cb-p1_07" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Copy all 80 spider files from fluency_scraping</div><div class="check-sub">car_forums/spiders/</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_08" onclick="toggleCheck('p1_08', 1)">
+      <div class="check-box" id="cb-p1_08" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Copy pipelines.py, middlewares.py, settings.py, items.py</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_09" onclick="toggleCheck('p1_09', 1)">
+      <div class="check-box" id="cb-p1_09" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Copy Dockerfile, requirements.txt, scrapy.cfg</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_10" onclick="toggleCheck('p1_10', 1)">
+      <div class="check-box" id="cb-p1_10" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Copy .github/workflows/deploy.yml (spider deploy)</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Failure Hook</div>
+    <div class="check-item done" id="ci-p1_11" onclick="toggleCheck('p1_11', 1)">
+      <div class="check-box" id="cb-p1_11" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add _notify_failure() method to pipelines.py</div><div class="check-sub">Fires on exception via spider_error_handler</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_12" onclick="toggleCheck('p1_12', 1)">
+      <div class="check-box" id="cb-p1_12" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add zero-items check in spider_closed()</div><div class="check-sub">Fires when item_scraped_count == 0</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_13" onclick="toggleCheck('p1_13', 1)">
+      <div class="check-box" id="cb-p1_13" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add DASHBOARD_URL env var to scrapy-task ECS task definition</div><div class="check-sub">Required for failure hook to reach Django</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Django REST API</div>
+    <div class="check-item done" id="ci-p1_14" onclick="toggleCheck('p1_14', 1)">
+      <div class="check-box" id="cb-p1_14" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build Crawler, SpiderRun, SelectorConfig models</div><div class="check-sub">crawlers/models.py</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_15" onclick="toggleCheck('p1_15', 1)">
+      <div class="check-box" id="cb-p1_15" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build HealAttempt model</div><div class="check-sub">heal_log/models.py</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_16" onclick="toggleCheck('p1_16', 1)">
+      <div class="check-box" id="cb-p1_16" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build DataQualitySnapshot, VolumeTrend models</div><div class="check-sub">data_quality/models.py</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_17" onclick="toggleCheck('p1_17', 1)">
+      <div class="check-box" id="cb-p1_17" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build DRF serializers for all models</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_18" onclick="toggleCheck('p1_18', 1)">
+      <div class="check-box" id="cb-p1_18" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build CrawlerViewSet — list, detail, stats, run, heal, notify_failure</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_19" onclick="toggleCheck('p1_19', 1)">
+      <div class="check-box" id="cb-p1_19" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build HealAttemptViewSet — update_status endpoint</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_20" onclick="toggleCheck('p1_20', 1)">
+      <div class="check-box" id="cb-p1_20" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Build DataQualityViewSet — fleet endpoint</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_21" onclick="toggleCheck('p1_21', 1)">
+      <div class="check-box" id="cb-p1_21" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Wire ford_lens/urls.py — all API routes</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_22" onclick="toggleCheck('p1_22', 1)">
+      <div class="check-box" id="cb-p1_22" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Configure Django settings.py — DB, AWS, CORS, DRF</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_23" onclick="toggleCheck('p1_23', 1)">
+      <div class="check-box" id="cb-p1_23" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add dashboard/Dockerfile and requirements.txt</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_24" onclick="toggleCheck('p1_24', 1)">
+      <div class="check-box" id="cb-p1_24" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add docker-compose.yml — auto-migrate + seed on boot</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Seed Data</div>
+    <div class="check-item done" id="ci-p1_25" onclick="toggleCheck('p1_25', 1)">
+      <div class="check-box" id="cb-p1_25" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Write seed_crawlers management command</div><div class="check-sub">Seeds all 44 crawlers with XPath selectors</div>
+      </div>
+    </div>
+    <div class="check-item done" id="ci-p1_26" onclick="toggleCheck('p1_26', 1)">
+      <div class="check-box" id="cb-p1_26" style="background:#2dd4bf;border-color:#2dd4bf"><svg viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="flex:1">
+        <div class="check-text">Add XPath templates for XenForo, phpBB, vBulletin, Custom engines</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_27" onclick="toggleCheck('p1_27', 1)">
+      <div class="check-box" id="cb-p1_27" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Run migrations locally — verify tables created</div>
+      </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
+    </div>
+    <div class="check-item" id="ci-p1_28" onclick="toggleCheck('p1_28', 1)">
+      <div class="check-box" id="cb-p1_28" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Run seed_crawlers — verify 44 crawlers in DB</div>
+      </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
+    </div>
+    <div class="check-item" id="ci-p1_29" onclick="toggleCheck('p1_29', 1)">
+      <div class="check-box" id="cb-p1_29" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify GET /api/crawlers/ returns 44 crawlers</div>
+      </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
+    </div>
+    <div class="check-item" id="ci-p1_30" onclick="toggleCheck('p1_30', 1)">
+      <div class="check-box" id="cb-p1_30" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify GET /api/crawlers/stats/ returns counts</div>
+      </div><span class="check-badge" style="background:rgba(59,130,246,.1);color:#93c5fd;border:1px solid rgba(59,130,246,.2)">Next</span>
+    </div>
+    <div class="checklist-group-label">Summary Crawler Tests</div>
+    <div class="check-item" id="ci-p1_31" onclick="toggleCheck('p1_31', 1)">
+      <div class="check-box" id="cb-p1_31" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Write base test helper (BaseCrawlerTest class)</div><div class="check-sub">car_forums/tests/base_test.py</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_32" onclick="toggleCheck('p1_32', 1)">
+      <div class="check-box" id="cb-p1_32" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Write summary crawler tests for all Ford forum spiders</div><div class="check-sub">speakev, pistonheads, ford_owners_club, fordownersclub, kuga_forum etc</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_33" onclick="toggleCheck('p1_33', 1)">
+      <div class="check-box" id="cb-p1_33" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Write summary crawler tests for all EV forum spiders</div><div class="check-sub">mach_e, explorer_electric, id4, enyaq, skoda etc</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_34" onclick="toggleCheck('p1_34', 1)">
+      <div class="check-box" id="cb-p1_34" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Write summary crawler tests for non-English spiders</div><div class="check-sub">forocoches, forum_peugeot, ford_forum_de, motor_talk etc</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_35" onclick="toggleCheck('p1_35', 1)">
+      <div class="check-box" id="cb-p1_35" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify all 7 checks pass per spider (items, author, content, date, title, next_page, no exceptions)</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">ECR + ECS Deploy</div>
+    <div class="check-item" id="ci-p1_36" onclick="toggleCheck('p1_36', 1)">
+      <div class="check-box" id="cb-p1_36" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Create ford-lens-dashboard ECR repository in AWS</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_37" onclick="toggleCheck('p1_37', 1)">
+      <div class="check-box" id="cb-p1_37" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Create ford-lens-mcp ECR repository in AWS</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_38" onclick="toggleCheck('p1_38', 1)">
+      <div class="check-box" id="cb-p1_38" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add GitHub Secrets: ECR_DASHBOARD_REPO, ECR_MCP_REPO</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_39" onclick="toggleCheck('p1_39', 1)">
+      <div class="check-box" id="cb-p1_39" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add GitHub Secrets: ECS_SUBNETS, ECS_SECURITY_GROUPS</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_40" onclick="toggleCheck('p1_40', 1)">
+      <div class="check-box" id="cb-p1_40" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add GitHub Secrets: ANTHROPIC_API_KEY, GITHUB_TOKEN</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_41" onclick="toggleCheck('p1_41', 1)">
+      <div class="check-box" id="cb-p1_41" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Create ECS service: ford-lens-dashboard (always-on)</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_42" onclick="toggleCheck('p1_42', 1)">
+      <div class="check-box" id="cb-p1_42" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Create Application Load Balancer, listener, target group</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_43" onclick="toggleCheck('p1_43', 1)">
+      <div class="check-box" id="cb-p1_43" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Trigger deploy_dashboard.yml — first Django deploy to ECS</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p1_44" onclick="toggleCheck('p1_44', 1)">
+      <div class="check-box" id="cb-p1_44" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify API live at ALB domain: /api/crawlers/ → 44 crawlers</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="checklist-panel" id="cl-phase3">
+  <div class="checklist-header">
+    <div class="checklist-title">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="#22c55e" stroke-width="1.5"/><polyline points="3,7 6,10 11,4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Build Checklist
+    </div>
+    <div class="checklist-progress">
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="pb-phase3" style="width:0%;background:#22c55e"></div></div>
+      <div class="progress-label" id="pl-phase3">0/22</div>
+    </div>
+  </div>
+  <div class="checklist-group">
+    <div class="checklist-group-label" style="border-top:none">MCP Server Skeleton</div>
+    <div class="check-item" id="ci-p3_01" onclick="toggleCheck('p3_01', 3)">
+      <div class="check-box" id="cb-p3_01" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Create mcp_server/server.py — FastAPI app, /heal endpoint, /health check</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_02" onclick="toggleCheck('p3_02', 3)">
+      <div class="check-box" id="cb-p3_02" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add Claude agentic loop — max 20 tool calls, 15-min wall-clock timeout</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_03" onclick="toggleCheck('p3_03', 3)">
+      <div class="check-box" id="cb-p3_03" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add mcp_server/Dockerfile and requirements.txt</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Spider Tools (4)</div>
+    <div class="check-item" id="ci-p3_04" onclick="toggleCheck('p3_04', 3)">
+      <div class="check-box" id="cb-p3_04" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build classify_failure() — reads error log, returns failure_type + confidence</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_05" onclick="toggleCheck('p3_05', 3)">
+      <div class="check-box" id="cb-p3_05" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build test_url_strategy() — tests one bypass strategy, returns accessible + block_type</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_06" onclick="toggleCheck('p3_06', 3)">
+      <div class="check-box" id="cb-p3_06" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build try_all_strategies() — tries curl_cffi → scrapling → playwright → requests</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_07" onclick="toggleCheck('p3_07', 3)">
+      <div class="check-box" id="cb-p3_07" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build fetch_page_html() — downloads live HTML, 50k char cap</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_08" onclick="toggleCheck('p3_08', 3)">
+      <div class="check-box" id="cb-p3_08" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build update_heal_status() — PATCHes HealAttempt in Aurora throughout loop</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">GitHub Tools (2)</div>
+    <div class="check-item" id="ci-p3_09" onclick="toggleCheck('p3_09', 3)">
+      <div class="check-box" id="cb-p3_09" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build get_spider_code() — fetches spider Python source via GitHub Contents API</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_10" onclick="toggleCheck('p3_10', 3)">
+      <div class="check-box" id="cb-p3_10" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build commit_spider_fix() — pushes complete fix to ford-lens-auto-heal branch only</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">ECS Tools (2)</div>
+    <div class="check-item" id="ci-p3_11" onclick="toggleCheck('p3_11', 3)">
+      <div class="check-box" id="cb-p3_11" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build trigger_ecs_run() — starts Fargate task with CMD override for spider name</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_12" onclick="toggleCheck('p3_12', 3)">
+      <div class="check-box" id="cb-p3_12" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build poll_task_status() — polls DescribeTasks every 30s until STOPPED</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_13" onclick="toggleCheck('p3_13', 3)">
+      <div class="check-box" id="cb-p3_13" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Build run_summary_crawler() — runs companion test script, validates 7 checks</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Branch Safety + CLAUDE.md</div>
+    <div class="check-item" id="ci-p3_14" onclick="toggleCheck('p3_14', 3)">
+      <div class="check-box" id="cb-p3_14" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Create ford-lens-auto-heal branch in repo</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_15" onclick="toggleCheck('p3_15', 3)">
+      <div class="check-box" id="cb-p3_15" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add GitHub branch protection rules — path restricted to car_forums/spiders/**</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_16" onclick="toggleCheck('p3_16', 3)">
+      <div class="check-box" id="cb-p3_16" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Scope Claude's GitHub token to ford-lens-auto-heal branch only</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_17" onclick="toggleCheck('p3_17', 3)">
+      <div class="check-box" id="cb-p3_17" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Write CLAUDE.md — spider conventions, middleware classes, XPath patterns, commit format</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Deploy MCP Server</div>
+    <div class="check-item" id="ci-p3_18" onclick="toggleCheck('p3_18', 3)">
+      <div class="check-box" id="cb-p3_18" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Deploy ford-lens-mcp ECS service — always-on, port 8001</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_19" onclick="toggleCheck('p3_19', 3)">
+      <div class="check-box" id="cb-p3_19" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Set ECS stopTimeout: 900s (15-min hard backstop on container)</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_20" onclick="toggleCheck('p3_20', 3)">
+      <div class="check-box" id="cb-p3_20" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Add ANTHROPIC_API_KEY + GITHUB_TOKEN to ECS task definition env vars</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_21" onclick="toggleCheck('p3_21', 3)">
+      <div class="check-box" id="cb-p3_21" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Test /heal endpoint with mock spider failure payload</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p3_22" onclick="toggleCheck('p3_22', 3)">
+      <div class="check-box" id="cb-p3_22" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify Claude loop runs, calls classify_failure first, respects timeout</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="checklist-panel" id="cl-phase4">
+  <div class="checklist-header">
+    <div class="checklist-title">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="3" stroke="#fbbf24" stroke-width="1.5"/><polyline points="3,7 6,10 11,4" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Build Checklist
+    </div>
+    <div class="checklist-progress">
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="pb-phase4" style="width:0%;background:#fbbf24"></div></div>
+      <div class="progress-label" id="pl-phase4">0/24</div>
+    </div>
+  </div>
+  <div class="checklist-group">
+    <div class="checklist-group-label" style="border-top:none">End-to-End Tests</div>
+    <div class="check-item" id="ci-p4_01" onclick="toggleCheck('p4_01', 4)">
+      <div class="check-box" id="cb-p4_01" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Deliberately break a spider — point at non-existent URL</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_02" onclick="toggleCheck('p4_02', 4)">
+      <div class="check-box" id="cb-p4_02" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify pipelines.py fires POST to /api/crawlers/notify-failure/</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_03" onclick="toggleCheck('p4_03', 4)">
+      <div class="check-box" id="cb-p4_03" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify HealAttempt created in Aurora, status = pending</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_04" onclick="toggleCheck('p4_04', 4)">
+      <div class="check-box" id="cb-p4_04" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify MCP server receives heal request, Claude loop starts</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_05" onclick="toggleCheck('p4_05', 4)">
+      <div class="check-box" id="cb-p4_05" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify Claude calls classify_failure() first</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_06" onclick="toggleCheck('p4_06', 4)">
+      <div class="check-box" id="cb-p4_06" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify fix committed to ford-lens-auto-heal branch (not main)</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_07" onclick="toggleCheck('p4_07', 4)">
+      <div class="check-box" id="cb-p4_07" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify GitHub Actions builds new ECR image from branch</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_08" onclick="toggleCheck('p4_08', 4)">
+      <div class="check-box" id="cb-p4_08" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify spider reruns and collects > 0 items</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_09" onclick="toggleCheck('p4_09', 4)">
+      <div class="check-box" id="cb-p4_09" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify HealAttempt status updated to success in dashboard</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Safety + Limits Verification</div>
+    <div class="check-item" id="ci-p4_10" onclick="toggleCheck('p4_10', 4)">
+      <div class="check-box" id="cb-p4_10" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify PR is auto-created for human review before merge to main</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_11" onclick="toggleCheck('p4_11', 4)">
+      <div class="check-box" id="cb-p4_11" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify Slack alert fires when Claude hits 15-min timeout</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_12" onclick="toggleCheck('p4_12', 4)">
+      <div class="check-box" id="cb-p4_12" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify 3-attempt weekly cap — spider marked needs_human_review after 3 failures</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_13" onclick="toggleCheck('p4_13', 4)">
+      <div class="check-box" id="cb-p4_13" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify Claude token cannot touch pipelines.py, settings.py, or workflows</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Load Testing</div>
+    <div class="check-item" id="ci-p4_14" onclick="toggleCheck('p4_14', 4)">
+      <div class="check-box" id="cb-p4_14" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Break 5 spiders simultaneously — verify 5 parallel heal sessions</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_15" onclick="toggleCheck('p4_15', 4)">
+      <div class="check-box" id="cb-p4_15" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify no sessions block each other — all 5 update dashboard live</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_16" onclick="toggleCheck('p4_16', 4)">
+      <div class="check-box" id="cb-p4_16" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify ECS MCP service handles concurrent heal requests</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Infrastructure Cleanup</div>
+    <div class="check-item" id="ci-p4_17" onclick="toggleCheck('p4_17', 4)">
+      <div class="check-box" id="cb-p4_17" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Fix Step Functions TimeoutSeconds: 5400 → 14400 (DataIngestion + PostgresETL)</div><div class="check-sub">Fixes Amazon CORE pipeline timeouts</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_18" onclick="toggleCheck('p4_18', 4)">
+      <div class="check-box" id="cb-p4_18" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Confirm ford-database-staging-old2 is unused — take snapshot + delete</div><div class="check-sub">Saves ~£180/mo</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_19" onclick="toggleCheck('p4_19', 4)">
+      <div class="check-box" id="cb-p4_19" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Migrate ford-scraping RDS → Aurora Serverless v2 (snapshot → restore → swap endpoint)</div><div class="check-sub">~2 hours · £165 → £30/mo</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_20" onclick="toggleCheck('p4_20', 4)">
+      <div class="check-box" id="cb-p4_20" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Verify Monday pipeline runs cleanly on Aurora after migration</div>
+      </div>
+    </div>
+    <div class="checklist-group-label">Sign-off</div>
+    <div class="check-item" id="ci-p4_21" onclick="toggleCheck('p4_21', 4)">
+      <div class="check-box" id="cb-p4_21" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Walk Danny through full system — heal cycle demo, costs, PR flow</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_22" onclick="toggleCheck('p4_22', 4)">
+      <div class="check-box" id="cb-p4_22" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Walk Mike through benefits, pitfalls, cost saving</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_23" onclick="toggleCheck('p4_23', 4)">
+      <div class="check-box" id="cb-p4_23" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Get sign-off from Danny</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_24" onclick="toggleCheck('p4_24', 4)">
+      <div class="check-box" id="cb-p4_24" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Get sign-off from Mike</div>
+      </div>
+    </div>
+  </div>
+</div>
 
     <div class="section-label" style="margin-bottom:16px">Implementation steps</div>
     <div class="steps-grid">
@@ -1071,6 +1863,121 @@ function setPhase(n) {
   // Scroll to top of main
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+
+// ── CHECKLIST SYSTEM ──────────────────────────────
+const STORAGE_KEY = 'ford_lens_checklist_v2';
+
+function loadChecks() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch(e) { return {}; }
+}
+
+function saveChecks(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+const phaseTotals = {1: 44, 2: 19, 3: 22, 4: 24};
+const phaseColors = {1:'#2dd4bf', 2:'#a78bfa', 3:'#22c55e', 4:'#fbbf24'};
+const circ = 94.25;
+
+// Pre-ticked items (already done based on our build)
+const preDone = [
+  'p1_01','p1_02','p1_03','p1_04','p1_05','p1_06',
+  'p1_07','p1_08','p1_09','p1_10',
+  'p1_11','p1_12',
+  'p1_14','p1_15','p1_16','p1_17','p1_18','p1_19','p1_20','p1_21','p1_22','p1_23','p1_24',
+  'p1_25','p1_26'
+];
+
+function initChecks() {
+  const state = loadChecks();
+  // Apply pre-done defaults if not already in storage
+  preDone.forEach(id => {
+    if (!(id in state)) state[id] = true;
+  });
+  saveChecks(state);
+  
+  // Apply visual state to all items
+  Object.entries(state).forEach(([id, done]) => {
+    applyCheckVisual(id, done);
+  });
+  
+  // Update all progress bars
+  [1,2,3,4].forEach(updateProgress);
+}
+
+function toggleCheck(id, phase) {
+  const state = loadChecks();
+  state[id] = !state[id];
+  saveChecks(state);
+  applyCheckVisual(id, state[id]);
+  updateProgress(phase);
+}
+
+function applyCheckVisual(id, done) {
+  const item = document.getElementById('ci-' + id);
+  const box = document.getElementById('cb-' + id);
+  if (!item || !box) return;
+  
+  // Get phase from id
+  const phase = parseInt(id.replace('p','').split('_')[0]);
+  const color = phaseColors[phase];
+  
+  if (done) {
+    item.classList.add('done');
+    box.style.background = color;
+    box.style.borderColor = color;
+    box.innerHTML = '<svg viewBox="0 0 12 12" fill="none" width="11" height="11"><polyline points="1.5,6 5,9.5 10.5,2.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  } else {
+    item.classList.remove('done');
+    box.style.background = '';
+    box.style.borderColor = '';
+    box.innerHTML = '';
+  }
+}
+
+function updateProgress(phase) {
+  const state = loadChecks();
+  const total = phaseTotals[phase];
+  const color = phaseColors[phase];
+  
+  // Count done items for this phase
+  const done = Object.entries(state)
+    .filter(([id, v]) => v && id.startsWith('p' + phase + '_'))
+    .length;
+  
+  const pct = Math.round(done/total*100);
+  
+  // Progress bar
+  const pb = document.getElementById('pb-phase' + phase);
+  const pl = document.getElementById('pl-phase' + phase);
+  if (pb) pb.style.width = pct + '%';
+  if (pl) pl.textContent = done + '/' + total;
+  
+  // Ring on ov-card
+  const ring = document.getElementById('ring-p' + phase);
+  const rpct = document.getElementById('rpct-p' + phase);
+  if (ring) {
+    const offset = circ * (1 - done/total);
+    ring.style.strokeDashoffset = offset.toFixed(2);
+  }
+  if (rpct) rpct.textContent = pct + '%';
+  
+  // Status bar dot
+  const statusDots = document.querySelectorAll('.status-item');
+  if (phase === 1 && statusDots[0]) {
+    if (pct === 100) {
+      statusDots[0].innerHTML = '<div class="status-dot" style="background:var(--teal)"></div> Phase 1 — Complete';
+    } else {
+      statusDots[0].innerHTML = '<div class="status-dot" style="background:var(--green)"></div> Phase 1 — In Progress (' + pct + '%)';
+    }
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', initChecks);
 
 // Keyboard nav
 document.addEventListener('keydown', e => {
