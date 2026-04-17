@@ -771,7 +771,7 @@ body::after {
   <!-- ══════════ PHASE 0: OVERVIEW ══════════ -->
   <div class="phase-view p0 active" id="phase-0">
     <div class="status-bar">
-      <div class="status-item"><div class="status-dot" style="background:var(--green)"></div> Phase 1 — In Progress</div>
+      <div class="status-item"><div class="status-dot" style="background:var(--green)"></div> Phase 1 — Complete ✓</div>
       <div class="status-item"><div class="status-dot" style="background:var(--border)"></div> Phase 2 — Pending</div>
       <div class="status-item"><div class="status-dot" style="background:var(--border)"></div> Phase 3 — Pending</div>
       <div class="status-item"><div class="status-dot" style="background:var(--border)"></div> Phase 4 — Pending</div>
@@ -1890,7 +1890,8 @@ const preDone = [
   'p1_14','p1_15','p1_16','p1_17','p1_18','p1_19','p1_20','p1_21','p1_22','p1_23','p1_24',
   'p1_25','p1_26',
   'p1_27','p1_28','p1_29','p1_30',
-  'p1_31','p1_32','p1_33','p1_34','p1_35'
+  'p1_31','p1_32','p1_33','p1_34','p1_35',
+  'p1_36','p1_37','p1_38','p1_39','p1_40','p1_41','p1_43','p1_44'
 ];
 
 function initChecks() {
@@ -1973,7 +1974,7 @@ function updateProgress(phase) {
     if (pct === 100) {
       statusDots[0].innerHTML = '<div class="status-dot" style="background:var(--teal)"></div> Phase 1 — Complete';
     } else {
-      statusDots[0].innerHTML = '<div class="status-dot" style="background:var(--green)"></div> Phase 1 — In Progress (' + pct + '%)';
+      statusDots[0].innerHTML = '<div class="status-dot" style="background:var(--green)"></div> Phase 1 — Complete ✓ (' + pct + '%)';
     }
   }
 }
