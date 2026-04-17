@@ -1543,6 +1543,21 @@ body::after {
         <div class="check-text">Verify Monday pipeline runs cleanly on Aurora after migration</div>
       </div>
     </div>
+    <div class="checklist-group-label">Security Cleanup</div>
+    <div class="check-item" id="ci-p4_sec1" onclick="toggleCheck('p4_sec1', 4)">
+      <div class="check-box" id="cb-p4_sec1" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Rotate AWS access key (AKIA5S2S4LG6HFZL545T — shared in chat)</div>
+        <div class="check-sub">IAM → Create new key → update GitHub Secrets → deactivate old</div>
+      </div>
+    </div>
+    <div class="check-item" id="ci-p4_sec2" onclick="toggleCheck('p4_sec2', 4)">
+      <div class="check-box" id="cb-p4_sec2" style=""></div>
+      <div style="flex:1">
+        <div class="check-text">Rotate Aurora DB password (FordLensScraping173 — shared in chat)</div>
+        <div class="check-sub">RDS → Modify → update ECS task definition env var</div>
+      </div>
+    </div>
     <div class="checklist-group-label">Sign-off</div>
     <div class="check-item" id="ci-p4_21" onclick="toggleCheck('p4_21', 4)">
       <div class="check-box" id="cb-p4_21" style=""></div>
@@ -1878,7 +1893,7 @@ function saveChecks(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-const phaseTotals = {1: 44, 2: 19, 3: 22, 4: 24};
+const phaseTotals = {1: 44, 2: 19, 3: 22, 4: 26};
 const phaseColors = {1:'#2dd4bf', 2:'#a78bfa', 3:'#22c55e', 4:'#fbbf24'};
 const circ = 94.25;
 
