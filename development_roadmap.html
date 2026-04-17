@@ -1618,7 +1618,7 @@ body::after {
       </div>
       <div class="deliverables">
         <h3>Deliverables</h3>
-        <div class="deliverable-item"><div class="d-dot"></div><div><div>Dashboard wired to /api/crawlers/ — real status per spider</div><div class="d-file">frontend/ford_lens_dashboard.html</div></div></div>
+        <div class="deliverable-item"><div class="d-dot"></div><div><div>Dashboard wired to /api/crawlers/ — real status per 66 spiders</div><div class="d-file">frontend/ford_lens_dashboard.html</div></div></div>
         <div class="deliverable-item"><div class="d-dot"></div><div><div>Run Crawler button → POST /crawlers/{id}/run/ → ECS task</div></div></div>
         <div class="deliverable-item"><div class="d-dot"></div><div><div>Heal button → POST /crawlers/{id}/heal/ → MCP server</div></div></div>
         <div class="deliverable-item"><div class="d-dot"></div><div><div>Heal Log tab shows real HealAttempts from Aurora</div></div></div>
@@ -1638,8 +1638,8 @@ body::after {
         <line x1="150" y1="90" x2="172" y2="90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr2)"/>
         <rect x="174" y="60" width="130" height="60" rx="6" fill="#0c1220" stroke="#a78bfa"/>
         <text x="239" y="82" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#c4b5fd">Load Balancer</text>
-        <text x="239" y="97" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ALB · port 443</text>
-        <text x="239" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa">always-on · ~£16/mo</text>
+        <text x="239" y="97" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#4a5a7a">ALB · port 80</text>
+        <text x="239" y="111" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" fill="#a78bfa">always-on · HTTP port 80</text>
         <line x1="304" y1="90" x2="326" y2="90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr2)"/>
         <rect x="328" y="60" width="140" height="60" rx="6" fill="#0c1220" stroke="#a78bfa"/>
         <text x="398" y="82" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="13" fill="#c4b5fd">Django REST API</text>
@@ -1663,7 +1663,7 @@ const {results} = await res.json();</div></div>
       <div class="step-card"><div class="step-number">Step 3</div><div class="step-title">Wire Heal button</div><div class="step-desc">Heal button calls POST /api/crawlers/{id}/heal/. Django creates HealAttempt, calls MCP server. Dashboard polls /api/heal-log/{id}/ every 5s for progress.</div></div>
       <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Date range filters</div><div class="step-desc">Filter selectors send date_from + date_to query params to /api/crawlers/. Django filters SpiderRuns by date range. Results update instantly.</div></div>
       <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Auto-refresh every 60s</div><div class="step-desc">setInterval polling re-fetches spider statuses every 60 seconds. Status dots update live. Running spiders show animated pulse.</div><div class="step-code">setInterval(loadCrawlers, 60000);</div></div>
-      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Deploy frontend via ECS</div><div class="step-desc">Copy dashboard HTML into dashboard/templates/dashboard.html. Django serves it at /. ALB routes port 443 to ECS service. Done.</div></div>
+      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Deploy frontend via ECS</div><div class="step-desc">Copy dashboard HTML into dashboard/templates/dashboard.html. Django serves it at /. ALB routes port 80 → ECS. ECS auto-registers task IPs in target group.</div></div>
     </div>
   </div>
 
@@ -1762,7 +1762,7 @@ const {results} = await res.json();</div></div>
 GET  /health → {"status":"ok"}</div></div>
       <div class="step-card"><div class="step-number">Step 2</div><div class="step-title">Build spider_tools.py (4 tools)</div><div class="step-desc">classify_failure() — reads error log, returns failure type. test_url_strategy() — tests one bypass. try_all_strategies() — tries all 4. fetch_page_html() — downloads live HTML.</div></div>
       <div class="step-card"><div class="step-number">Step 3</div><div class="step-title">Build github_tools.py (2 tools)</div><div class="step-desc">get_spider_code() — fetches spider Python source via GitHub Contents API. commit_spider_fix() — pushes complete fixed file to ford-lens-auto-heal branch only.</div></div>
-      <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Build ecs_tools.py (2 tools)</div><div class="step-desc">trigger_ecs_run() — starts Fargate task with CMD override for spider name. poll_task_status() — polls DescribeTasks every 30s until STOPPED.</div></div>
+      <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Build ecs_tools.py (2 tools)</div><div class="step-desc">trigger_ecs_run() — starts Fargate task on ford-lens-scraping-cluster with CMD override for spider name. poll_task_status() — polls DescribeTasks every 30s until STOPPED.</div></div>
       <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Create ford-lens-auto-heal branch</div><div class="step-desc">Create the branch. Add GitHub branch protection rules restricting Claude's token to car_forums/spiders/** only. Cannot touch pipelines, settings, workflows.</div><div class="step-code">git checkout -b ford-lens-auto-heal
 # Branch protection: spiders/** only</div></div>
       <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Write CLAUDE.md</div><div class="step-desc">Codebase conventions: middleware classes, XPath patterns, item fields, how spiders are structured, how to add null guards, commit message format.</div><div class="step-code">CLAUDE.md → always read by Claude
@@ -1780,7 +1780,7 @@ GET  /health → {"status":"ok"}</div></div>
       <div class="phase-intro">
         <div class="phase-badge">Phase 4 · Week 4+</div>
         <div class="phase-h"><span>Full Autonomy</span></div>
-        <div class="phase-desc">End-to-end validation, infrastructure cleanup, load testing with 5 simultaneous failures, Aurora Serverless v2 migration, Step Functions timeout fix, and final sign-off from Danny and Mike. The pipeline runs itself.</div>
+        <div class="phase-desc">End-to-end validation, load testing with 5 simultaneous failures, Amazon CORE Step Functions fix, security cleanup, and final sign-off from Danny and Mike. The pipeline runs itself.</div>
         <div class="phase-meta">
           <div class="phase-meta-row"><span>E2E test</span><span>Trigger real failure → watch full heal cycle</span></div>
           <div class="phase-meta-row"><span>Load test</span><span>5 simultaneous spider failures at once</span></div>
@@ -1847,9 +1847,9 @@ GET  /health → {"status":"ok"}</div></div>
       <div class="step-card"><div class="step-number">Step 4</div><div class="step-title">Load test — 5 simultaneous failures</div><div class="step-desc">Break 5 spiders at once. Verify all 5 heal sessions run in parallel. Dashboard shows all 5 updating live. No sessions block each other.</div></div>
       <div class="step-card"><div class="step-number">Step 5</div><div class="step-title">Aurora Serverless v2 migration</div><div class="step-desc">Take RDS snapshot → restore as Aurora Serverless v2 → update DB_HOST env var in ECS → run one Monday cycle → decommission old RDS. ~2 hours.</div><div class="step-code"># Saves ~£135/month
 # £165 → £30/mo</div></div>
-      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Fix Step Functions timeout</div><div class="step-desc">Change TimeoutSeconds from 5400 (90 min) to 14400 (4 hours) on DataIngestion and PostgresETL states. Fixes the Amazon CORE pipeline timeouts.</div><div class="step-code">TimeoutSeconds: 5400  →  14400
+      <div class="step-card"><div class="step-number">Step 6</div><div class="step-title">Fix Step Functions timeout</div><div class="step-desc">Change TimeoutSeconds from 5400 (90 min) to 14400 (4 hours) on DataIngestion and PostgresETL states in MyStateMachine-gvr3kdz4q. Fixes Amazon CORE pipeline timeouts (separate from Ford LENS).</div><div class="step-code">TimeoutSeconds: 5400  →  14400
 # DataIngestion + PostgresETL</div></div>
-      <div class="step-card"><div class="step-number">Step 7</div><div class="step-title">Decommission old staging DB</div><div class="step-desc">Confirm ford-database-staging-old2 is unused. Take final snapshot. Delete instance. Saves ~£180/month.</div></div>
+      <div class="step-card"><div class="step-number">Step 7</div><div class="step-title">Decommission old staging DB</div><div class="step-desc">Confirm ford-database-staging-old2 is unused (existing infra). Take final snapshot and delete if confirmed unused.</div></div>
       <div class="step-card"><div class="step-number">Step 8</div><div class="step-title">Sign-off from Danny and Mike</div><div class="step-desc">Walk through the full system live. Show a heal cycle end-to-end. Confirm costs, PR flow, Slack alerts. Get sign-off. Done.</div></div>
     </div>
   </div>
