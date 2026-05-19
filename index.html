@@ -386,6 +386,135 @@
   /* scrollbars global */
   #main::-webkit-scrollbar { width:5px; }
   #main::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* ── READABILITY BOOST ─────────────────────────────── */
+:root {
+  --text: #f0f4ff !important;
+  --muted: #94a3b8 !important;
+  --bg: #060b14 !important;
+  --bg2: #0a1020 !important;
+  --panel: #0d1526 !important;
+  --border: #1e2f4a !important;
+}
+
+body {
+  font-size: 15px !important;
+  line-height: 1.8 !important;
+  color: #f0f4ff !important;
+}
+
+h1 { font-size: 44px !important; color: #f0f4ff !important; }
+h2 { font-size: 24px !important; color: #f0f4ff !important; margin-bottom: 8px !important; }
+h3 { font-size: 18px !important; color: #f0f4ff !important; }
+h4 { font-size: 16px !important; color: #f0f4ff !important; }
+
+p, li, span, div {
+  color: inherit;
+}
+
+/* Body text bigger */
+.intro, .tagline, .step-desc, .phase-desc, .card-desc, .desc, 
+.check-text, .check-sub, .d-file, .step-code,
+[class*="desc"], [class*="intro"], [class*="body"] {
+  font-size: 14px !important;
+  color: #c8d8f0 !important;
+  line-height: 1.75 !important;
+}
+
+/* Muted text - make more visible */
+[style*="color:var(--muted)"], .muted,
+[class*="muted"], [class*="meta"], [class*="sub"],
+.ford-lens, .diag-title, .phase-meta-row, .ov-weeks, .ov-number,
+.step-number, .phase-badge, .check-sub, .d-file,
+.pc-desc, .pc-time, .pc-lbl, .cost-sub, .footer,
+.section-label, .phase-meta-row span:first-child {
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+}
+
+/* Tables */
+table th {
+  font-size: 12px !important;
+  color: #94a3b8 !important;
+  padding: 10px 16px !important;
+}
+table td {
+  font-size: 13px !important;
+  color: #d4e0f0 !important;
+  padding: 10px 16px !important;
+  line-height: 1.6 !important;
+}
+table td.label { font-size: 14px !important; color: #f0f4ff !important; }
+
+/* Mono text */
+.step-code, code, pre, [class*="mono"], td[style*="mono"] {
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  color: #7dd3fc !important;
+}
+
+/* Checklist items */
+.check-text {
+  font-size: 14px !important;
+  color: #e2ecff !important;
+}
+.check-item { padding: 12px 20px !important; }
+
+/* Nav pills */
+.pill, .phase-pill {
+  font-size: 14px !important;
+  padding: 9px 22px !important;
+}
+
+/* Cards */
+.card, .step-card, .pc, .phase-intro, .deliverables, 
+.diagram-section, .checklist-panel {
+  padding: 24px !important;
+}
+
+/* Phase titles */
+.phase-h { font-size: 34px !important; }
+.step-title, .pc-title, .ov-title, .deliverable-item div:first-child,
+.checklist-title { font-size: 16px !important; color: #f0f4ff !important; }
+
+/* Section labels */
+.section-label { font-size: 13px !important; letter-spacing: .1em; }
+
+/* Headings in summary/plan */
+.header-title { font-size: 32px !important; }
+
+/* Progress label */
+.progress-label { font-size: 12px !important; color: #94a3b8 !important; }
+
+/* Bigger overview cards */
+.ov-title { font-size: 16px !important; color: #f0f4ff !important; }
+.ov-number { font-size: 11px !important; }
+
+/* Ring percentage */
+.ring-pct { font-size: 10px !important; color: #f0f4ff !important; }
+
+/* Status items */
+.status-item { font-size: 12px !important; color: #94a3b8 !important; }
+
+/* Summary page specific */
+.ep-title { font-size: 18px !important; color: #f0f4ff !important; }
+.ep-desc  { font-size: 14px !important; color: #c8d8f0 !important; }
+.card h4  { font-size: 16px !important; color: #f0f4ff !important; }
+.card ul li { font-size: 14px !important; color: #c8d8f0 !important; line-height: 1.7 !important; }
+.cost-val { font-size: 36px !important; }
+.cost-label { font-size: 12px !important; }
+.cost-sub  { font-size: 13px !important; }
+
+/* Plan page phase cards */
+.ph-name { font-size: 16px !important; color: #f0f4ff !important; }
+.ph-desc { font-size: 14px !important; color: #c8d8f0 !important; }
+.ph-time { font-size: 12px !important; }
+
+/* Endpoint blocks */
+.ep-method { font-size: 13px !important; }
+.ep-path   { font-size: 14px !important; }
+/* ── END READABILITY BOOST ─────────────────────────── */
+
 </style>
 </head>
 <body>
