@@ -2136,49 +2136,69 @@ document.addEventListener('keydown', e => {
 });
 </script>
 
+
+
+
+
 <style>
-/* ── DIAGRAM BOOST ──────────────────────────────── */
-.diagram-section {
-  padding: 32px 24px !important;
-  margin-bottom: 40px !important;
-}
+/* ── DIAGRAM BOOST v2 — scale whole SVG, not just text ── */
+.diagram svg,
+.diagram-section svg,
 .diagram-svg {
-  display: block;
+  display: block !important;
   width: 100% !important;
-  min-height: 160px;
+  height: auto !important;
+  min-height: 180px;
 }
+/* Taller containers so SVGs have room */
+.diagram,
+.diagram-section {
+  padding: 28px 20px !important;
+  margin-bottom: 36px !important;
+  overflow: visible !important;
+}
+.diag-title,
 .section-label {
   font-size: 14px !important;
-  letter-spacing: .1em !important;
   color: #94a3b8 !important;
-  margin-bottom: 20px !important;
+  margin-bottom: 18px !important;
 }
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.diagram-section svg, .diagram-svg').forEach(function(svg) {
-    svg.querySelectorAll('text').forEach(function(t) {
-      var sz = parseFloat(t.getAttribute('font-size') || '10');
-      var newSz = Math.round(sz * 1.55);
-      t.setAttribute('font-size', newSz);
-      if (t.getAttribute('fill') === '#4a5a7a') t.setAttribute('fill', '#94a3b8');
-      if (t.getAttribute('fill') === '#c8d5ef') t.setAttribute('fill', '#f0f4ff');
-    });
+  document.querySelectorAll('.diagram svg, .diagram-section svg').forEach(function(svg) {
+    // Get viewBox dimensions
     var vb = svg.getAttribute('viewBox');
-    if (vb) {
-      var parts = vb.split(' ').map(Number);
-      if (parts.length === 4) {
-        parts[3] = Math.round(parts[3] * 1.35);
-        svg.setAttribute('viewBox', parts.join(' '));
-      }
-    }
+    if (!vb) return;
+    var parts = vb.split(' ').map(Number);
+    if (parts.length !== 4) return;
+    var origW = parts[2], origH = parts[3];
+
+    // Brighten colours only (no size changes to avoid overflow)
+    svg.querySelectorAll('text').forEach(function(t) {
+      var fill = t.getAttribute('fill');
+      if (fill === '#4a5a7a') t.setAttribute('fill', '#8899bb');
+      if (fill === '#c8d5ef') t.setAttribute('fill', '#e8f0ff');
+      // Slightly increase font size  
+      var sz = parseFloat(t.getAttribute('font-size') || '10');
+      if (sz <= 9)  t.setAttribute('font-size', sz + 2);
+      else if (sz <= 12) t.setAttribute('font-size', sz + 2);
+    });
+
+    // Brighten borders
     svg.querySelectorAll('rect').forEach(function(r) {
-      if (r.getAttribute('stroke') === '#1a2540') r.setAttribute('stroke', '#2a3a5a');
+      if (r.getAttribute('stroke') === '#1a2540') r.setAttribute('stroke', '#2e4060');
+      if (r.getAttribute('fill') === '#0c1220') r.setAttribute('fill', '#0d1628');
     });
-    svg.querySelectorAll('line, path[stroke]').forEach(function(el) {
-      var sw = parseFloat(el.getAttribute('stroke-width') || '1');
-      if (sw <= 1.5) el.setAttribute('stroke-width', '2');
+
+    // Thicker lines
+    svg.querySelectorAll('line, path').forEach(function(el) {
+      var sw = parseFloat(el.getAttribute('stroke-width') || '0');
+      if (sw > 0 && sw <= 1.5) el.setAttribute('stroke-width', sw + 0.5);
     });
+
+    // Expand viewBox height by 25% so content isn't cramped
+    svg.setAttribute('viewBox', parts[0] + ' ' + parts[1] + ' ' + origW + ' ' + Math.round(origH * 1.25));
   });
 });
 </script>
