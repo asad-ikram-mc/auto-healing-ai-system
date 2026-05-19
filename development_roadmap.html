@@ -2135,5 +2135,53 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && cur > 0) setPhase(cur - 1);
 });
 </script>
+
+<style>
+/* ── DIAGRAM BOOST ──────────────────────────────── */
+.diagram-section {
+  padding: 32px 24px !important;
+  margin-bottom: 40px !important;
+}
+.diagram-svg {
+  display: block;
+  width: 100% !important;
+  min-height: 160px;
+}
+.section-label {
+  font-size: 14px !important;
+  letter-spacing: .1em !important;
+  color: #94a3b8 !important;
+  margin-bottom: 20px !important;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.diagram-section svg, .diagram-svg').forEach(function(svg) {
+    svg.querySelectorAll('text').forEach(function(t) {
+      var sz = parseFloat(t.getAttribute('font-size') || '10');
+      var newSz = Math.round(sz * 1.55);
+      t.setAttribute('font-size', newSz);
+      if (t.getAttribute('fill') === '#4a5a7a') t.setAttribute('fill', '#94a3b8');
+      if (t.getAttribute('fill') === '#c8d5ef') t.setAttribute('fill', '#f0f4ff');
+    });
+    var vb = svg.getAttribute('viewBox');
+    if (vb) {
+      var parts = vb.split(' ').map(Number);
+      if (parts.length === 4) {
+        parts[3] = Math.round(parts[3] * 1.35);
+        svg.setAttribute('viewBox', parts.join(' '));
+      }
+    }
+    svg.querySelectorAll('rect').forEach(function(r) {
+      if (r.getAttribute('stroke') === '#1a2540') r.setAttribute('stroke', '#2a3a5a');
+    });
+    svg.querySelectorAll('line, path[stroke]').forEach(function(el) {
+      var sw = parseFloat(el.getAttribute('stroke-width') || '1');
+      if (sw <= 1.5) el.setAttribute('stroke-width', '2');
+    });
+  });
+});
+</script>
+
 </body>
 </html>
