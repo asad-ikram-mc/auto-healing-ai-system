@@ -814,4 +814,76 @@ function switchView(v){
 }
 switchView('b');
 </script>
+
+<style>
+/* ── DIAGRAM BOOST ──────────────────────────────── */
+.diagram {
+  padding: 32px 24px !important;
+  margin-bottom: 40px !important;
+  overflow-x: auto !important;
+}
+.diagram svg {
+  min-height: 200px;
+  display: block;
+  width: 100% !important;
+}
+/* Taller viewboxes via container min-height */
+.diagram:has(svg[viewBox*="0 340"]),
+.diagram:has(svg[viewBox*="0 300"]) {
+  min-height: 500px;
+}
+.diag-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
+  margin-bottom: 20px !important;
+  letter-spacing: .08em !important;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Scale up all SVG text and rects in diagrams
+  document.querySelectorAll('.diagram svg').forEach(function(svg) {
+    // Boost all text elements
+    svg.querySelectorAll('text').forEach(function(t) {
+      var sz = parseFloat(t.getAttribute('font-size') || '10');
+      // Scale up: 7→11, 8→13, 9→14, 10→15, 11→16
+      var newSz = Math.round(sz * 1.55);
+      t.setAttribute('font-size', newSz);
+      // Make muted text (#4a5a7a) brighter
+      if (t.getAttribute('fill') === '#4a5a7a') {
+        t.setAttribute('fill', '#94a3b8');
+      }
+      // Make main text brighter
+      if (t.getAttribute('fill') === '#c8d5ef') {
+        t.setAttribute('fill', '#f0f4ff');
+      }
+    });
+
+    // Expand viewBox height by 40% for more breathing room
+    var vb = svg.getAttribute('viewBox');
+    if (vb) {
+      var parts = vb.split(' ').map(Number);
+      if (parts.length === 4) {
+        parts[3] = Math.round(parts[3] * 1.35);
+        svg.setAttribute('viewBox', parts.join(' '));
+      }
+    }
+
+    // Make rect borders brighter
+    svg.querySelectorAll('rect').forEach(function(r) {
+      var stroke = r.getAttribute('stroke');
+      if (stroke === '#1a2540') r.setAttribute('stroke', '#2a3a5a');
+      if (stroke === '#0a0f1a') r.setAttribute('stroke', '#1a2540');
+    });
+
+    // Thicker arrows
+    svg.querySelectorAll('line, path[stroke]').forEach(function(el) {
+      var sw = parseFloat(el.getAttribute('stroke-width') || '1');
+      if (sw <= 1.5) el.setAttribute('stroke-width', '2');
+    });
+  });
+});
+</script>
+
 </body></html>
